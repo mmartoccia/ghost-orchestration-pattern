@@ -186,8 +186,7 @@ flowchart TD
 |------|-------------|
 | `docs/ARCHITECTURE.md` | Full architecture doc |
 | `docs/SLA.md` | Lane-aware SLA/escalation matrix |
-| `diagrams/*.mmd.source` | Mermaid source files (for Obsidian / local tools) |
-| `diagrams/*.png` | Pre-rendered fallback PNGs |
+| `diagrams/*.mmd` | Mermaid source files |
 | `examples/minimal_daemon.py` | Working skeleton daemon |
 | `examples/task_schema.yaml` | Full task schema reference |
 | `examples/schema.json` | JSONL orchestration log schema |
