@@ -2,16 +2,16 @@
 
 ```mermaid
 flowchart TD
-    L["lane.md\ntask blocks"] <--> P
-    P["poll_lane()\ncheck for ready tasks"] --> R["Sort by priority\npick next task"]
-    R --> E["execute(task)\ndo the work"]
-    E --> W["write_result()\nupdate Board"]
+    L["lane.md - task blocks"] --> P
+    P["poll_lane() - check for ready tasks"] --> R["Sort by priority - pick next task"]
+    R --> E["execute(task) - do the work"]
+    E --> W["write_result() - update Board"]
     W --> P
-    W --> T1["Fast Worker\n30-60s cycle"]
-    W --> T2["Medium Worker\n2-5 min cycle"]
-    W --> T3["Slow Worker\n5-15 min cycle"]
-    W -.-> H["worker.json\nHeartbeat"]
-    H -.-> S["Supervisor\nauto-restart"]
+    W --> T1["Fast Worker - 30-60s cycle"]
+    W --> T2["Medium Worker - 2-5 min cycle"]
+    W --> T3["Slow Worker - 5-15 min cycle"]
+    W -.-> H["worker.json - Heartbeat"]
+    H -.-> S["Supervisor - auto-restart"]
 ```
 
 A lane worker is a background process dedicated to a single coordination lane. Each worker watches its lane for new work, executes tasks, and writes results back to the Board.

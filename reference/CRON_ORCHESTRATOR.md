@@ -67,7 +67,7 @@ function logAction(action, data) {
         ...data,
     };
     const logFile = path.join(LOG_DIR, 'cron-orchestrator.log');
-    fs.appendFileSync(logFile, JSON.stringify(entry) + '\n');
+    fs.appendFileSync(logFile, JSON.stringify(entry) + ' - ');
     console.log(`[cron] ${action}:`, JSON.stringify(data));
 }
 

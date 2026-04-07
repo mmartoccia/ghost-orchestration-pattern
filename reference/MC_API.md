@@ -256,7 +256,7 @@ def write_log(task_id, from_state, to_state, actor, **kwargs):
         **kwargs,
     }
     with open(LOG_FILE, "a") as f:
-        f.write(json.dumps(entry) + "\n")
+        f.write(json.dumps(entry) + " - ")
     return entry
 
 @app.post("/api/tasks/<task_id>/status")

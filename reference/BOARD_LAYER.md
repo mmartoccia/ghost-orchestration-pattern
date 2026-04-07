@@ -2,11 +2,11 @@
 
 ```mermaid
 flowchart TD
-    A["Inbound Signals\nTelegram / Email / Cron / Alert"] --> B["Human Triage\nchoose lane and priority"]
-    B --> C["fast-lane.md\nProduct / API"]
-    B --> D["medium-lane.md\nData / ETL"]
-    B --> E["slow-lane.md\nStrategy"]
-    B --> F["incident-board.md\ncross-lane"]
+    A["Inbound Signals - Telegram / Email / Cron / Alert"] --> B["Human Triage - choose lane and priority"]
+    B --> C["fast-lane.md - Product / API"]
+    B --> D["medium-lane.md - Data / ETL"]
+    B --> E["slow-lane.md - Strategy"]
+    B --> F["incident-board.md - cross-lane"]
     C --> C1["Telegram Topic 6"]
     D --> D1["Telegram Topic 5"]
     E --> E1["Telegram Topic 3"]

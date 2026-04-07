@@ -2,12 +2,12 @@
 
 ```mermaid
 flowchart TD
-    T["Task enters competition"] --> P["Policy gate\nfocus and block thresholds"]
-    P -->|"pass"| Q["task-queue\nwait for slot"]
+    T["Task enters competition"] --> P["Policy gate - focus and block thresholds"]
+    P -->|"pass"| Q["task-queue - wait for slot"]
     P -->|"fail"| RJ["rejected"]
     Q --> A["Agent A writes spec"]
     Q --> B["Agent B writes spec"]
-    A --> V["Reviewer scores both\nquality x alignment x risk"]
+    A --> V["Reviewer scores both - quality x alignment x risk"]
     B --> V
     V --> W["Winner dispatched"]
     V --> L["Loser archived"]

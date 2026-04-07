@@ -77,11 +77,11 @@ flowchart TB
 
 ```mermaid
 flowchart TD
-    A["Inbound Signals\nTelegram / Email / Cron / Alert"] --> B["Human Triage\nchoose lane and priority"]
-    B --> C["fast-lane.md\nProduct / API"]
-    B --> D["medium-lane.md\nData / ETL"]
-    B --> E["slow-lane.md\nStrategy"]
-    B --> F["incident-board.md\ncross-lane"]
+    A["Inbound Signals - Telegram / Email / Cron / Alert"] --> B["Human Triage - choose lane and priority"]
+    B --> C["fast-lane.md - Product / API"]
+    B --> D["medium-lane.md - Data / ETL"]
+    B --> E["slow-lane.md - Strategy"]
+    B --> F["incident-board.md - cross-lane"]
     C --> C1["Telegram Topic 6"]
     D --> D1["Telegram Topic 5"]
     E --> E1["Telegram Topic 3"]
@@ -92,16 +92,17 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    L["lane.md\ntask blocks"] <--> P
-    P["poll_lane()\ncheck for ready tasks"] --> R["Sort by priority\npick next task"]
-    R --> E["execute(task)\ndo the work"]
-    E --> W["write_result()\nupdate Board"]
+    L["lane.md - task blocks"] --> P
+    P --> L
+    P["poll_lane() - check for ready tasks"] --> R["Sort by priority - pick next task"]
+    R --> E["execute task - do the work"]
+    E --> W["write_result() - update Board"]
     W --> P
-    W --> T1["Fast Worker\n30-60s cycle"]
-    W --> T2["Medium Worker\n2-5 min cycle"]
-    W --> T3["Slow Worker\n5-15 min cycle"]
-    W -.-> H["worker.json\nHeartbeat"]
-    H -.-> S["Supervisor\nauto-restart"]
+    W --> T1["Fast Worker - 30-60s cycle"]
+    W --> T2["Medium Worker - 2-5 min cycle"]
+    W --> T3["Slow Worker - 5-15 min cycle"]
+    W -.-> H["worker.json - Heartbeat"]
+    H -.-> S["Supervisor - auto-restart"]
 ```
 
 ### Orchestration API
@@ -159,12 +160,12 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    T["Task enters competition"] --> P["Policy gate\nfocus and block thresholds"]
-    P -->|"pass"| Q["task-queue\nwait for slot"]
+    T["Task enters competition"] --> P["Policy gate - focus and block thresholds"]
+    P -->|"pass"| Q["task-queue - wait for slot"]
     P -->|"fail"| RJ["rejected"]
     Q --> A["Agent A writes spec"]
     Q --> B["Agent B writes spec"]
-    A --> V["Reviewer scores both\nquality x alignment x risk"]
+    A --> V["Reviewer scores both - quality x alignment x risk"]
     B --> V
     V --> W["Winner dispatched"]
     V --> L["Loser archived"]
