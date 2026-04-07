@@ -101,6 +101,20 @@ Full documentation: see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
 ---
 
+## Reference Implementation Layer
+
+The `reference/` directory contains production-tested implementation patterns extracted from a live system:
+
+| File | Description |
+|------|-------------|
+| `reference/BOARD_LAYER.md` | Coordination boards, topic lanes, incident routing, task block schema |
+| `reference/LANE_WORKERS.md` | Per-lane background processor pattern, startup supervisor, health checks |
+| `reference/MC_API.md` | 5-endpoint REST API for task coordination, atomicity contract, Flask implementation |
+| `reference/CRON_ORCHESTRATOR.md` | 15-min scheduler, TASTE rubric, metrics to collect, alert routing |
+| `reference/SPEC_COMPETITION.md` | Multi-agent decision mode, ELO rating system, reviewer scoring rubric |
+
+These are **reference patterns**, not drop-in implementations. They show how each layer works in production. Adapt to your stack.
+
 ## Status
 
 Pattern is production-proven. Reference implementations are skeletons — adapt to your stack.
