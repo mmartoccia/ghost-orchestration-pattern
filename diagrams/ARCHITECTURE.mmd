@@ -1,64 +1,32 @@
 ```mermaid
-%%{init: {"theme": "dark"}}%%
+%%{init: { "theme": "dark" }}%%
 flowchart TB
     subgraph BOARD["LAYER 1 — BOARD"]
         direction TB
         L1["Human work intake + Triage"]
-        LANES["fast-lane · medium-lane · slow-lane\n(coordination/*.md files)"]
-        INC["incident-board.md (Cross-Lane Escalation)"]
-        TOPICMAP["topic-map.yaml (channel to file routing)"]
+        LANES["fast-lane  medium-lane  slow-lane"]
+        INC["incident-board.md (Cross-Lane)"]
+        TOPICMAP["topic-map.yaml routing"]
         L1 --> LANES
         LANES --> INC
-        L1 --> TOPICMAP
     end
-
-    BOARD -->|"task dispatch"| ORCH
-
+    BOARD --> ORCH
     subgraph ORCH["LAYER 2 — ORCHESTRATION"]
         direction LR
-        
-        subgraph LOOP["Task Loop (Daemon)"]
-            PN["pick_next() WIP=1 highest-prio"]
-            EX["execute_task() run spawn dispatch"]
-            LOG["mark done/blocked write log"]
-            PN --> EX --> LOG --> PN
-        end
-        
-        subgraph SCHED["Cron Scheduler"]
-            M["1 Metrics"]
-            A["2 Analyze quality cost"]
-            E["3 TASTE rubric evaluate"]
-            P["4 Proposals deviations"]
-            M --> A --> E --> P
-        end
-        
-        subgraph SPEC["Spec Competition"]
-            SA["Agent A writes spec"]
-            SB["Agent B writes spec"]
-            RV["Reviewer scores both"]
-            SA --> RV
-            SB --> RV
-        end
-        
-        subgraph WORKERS["Lane Workers"]
-            WA["fast-lane worker"]
-            WM["medium-lane worker"]
-            WS["slow-lane worker"]
-        end
+        LOOP["Task Loop (Daemon) WIP=1"]
+        SCHED["Cron Scheduler 15min TASTE rubric"]
+        SPEC["Spec Competition ELO ratings"]
+        WORKERS["Lane Workers fast medium slow"]
     end
-
-    ORCH -->|"read write"| DATA
-
+    ORCH --> DATA
     subgraph DATA["LAYER 3 — DATA"]
-        PROD["Canonical Source append-only read-only"]
+        PROD["Canonical Source append-only"]
         SYNC["ETL Sync schema validation"]
         DER["Derived Store PostgreSQL SQLite"]
         PROD --> SYNC --> DER
     end
-
-    LOOP -.-> LOG2["orchestration.log.jsonl immutable append-only"]
-    SCHED -.-> LOG2
-
+    LOOP -.-> LOG["orchestration.log.jsonl"]
+    SCHED -.-> LOG
     style BOARD fill:#16213e,stroke:#4a9eff,stroke-width:2px
     style ORCH fill:#1a1a2e,stroke:#4a9eff,stroke-width:2px
     style DATA fill:#0f3460,stroke:#4a9eff,stroke-width:2px

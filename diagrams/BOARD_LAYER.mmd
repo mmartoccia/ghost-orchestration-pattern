@@ -1,43 +1,31 @@
 ```mermaid
-%%{init: {"theme": "dark"}}%%
+%%{init: { "theme": "dark" }}%%
 flowchart TB
-    subgraph INTAKE["WORK ARRIVAL"]
-        MSG["Telegram Email Cron Alert Human Input"]
-        TRIAGE["Human Triage Choose lane by primary surface"]
+    subgraph IN["WORK ARRIVAL"]
+        MSG["Telegram Email Cron Alert Human"]
+        TRIAGE["Human Triage choose lane"]
     end
     MSG --> TRIAGE
-
     subgraph BOARD["LAYER 1 — BOARD"]
-        FL["fast-lane.md Product API User-facing"]
+        FL["fast-lane.md Product API"]
         ML["medium-lane.md Data Pipeline ETL"]
         SL["slow-lane.md Strategy Research"]
-        IB["incident-board.md Cross-lane issues"]
-        OW["org-wide.md Governance Staffing"]
+        IB["incident-board.md cross-lane"]
+        OW["org-wide.md governance"]
         FL --> IB
         ML --> IB
         SL --> IB
-        FL --> OW
     end
-
-    TRIAGE -->|"route to lane"| BOARD
-
-    subgraph NOTIFY["NOTIFICATION ROUTING"]
-        N1["Fast-lane events Telegram Topic 6"]
-        N2["Medium-lane events Telegram Topic 5"]
-        N3["Slow-lane events Telegram Topic 3"]
-        N4["Cross-lane incidents Telegram Topic 1"]
-    end
-    FL --> N1
-    ML --> N2
-    SL --> N3
-    IB --> N4
-
-    style INTAKE fill:#1a1a2e,stroke:#4a9eff,stroke-width:1px
+    TRIAGE --> BOARD
+    FL --> N1["Fast Telegram Topic 6"]
+    ML --> N2["Medium Telegram Topic 5"]
+    SL --> N3["Slow Telegram Topic 3"]
+    IB --> N4["Incident Telegram Topic 1"]
+    style IN fill:#1a1a2e,stroke:#4a9eff,stroke-width:1px
     style BOARD fill:#16213e,stroke:#4a9eff,stroke-width:2px
     style FL fill:#0d1117,stroke:#50fa7b,stroke-width:1px
     style ML fill:#0d1117,stroke:#8be9fd,stroke-width:1px
     style SL fill:#0d1117,stroke:#f1fa8c,stroke-width:1px
     style IB fill:#1a0a0a,stroke:#ff5555,stroke-width:1px
     style OW fill:#0f1a0f,stroke:#50fa7b,stroke-width:1px
-    style NOTIFY fill:#12122a,stroke:#f1fa8c,stroke-width:1px
 ```

@@ -1,38 +1,24 @@
 ```mermaid
-%%{init: {"theme": "dark"}}%%
+%%{init: { "theme": "dark" }}%%
 flowchart TB
-    subgraph BOARD_FILE["Board Layer lane .md file"]
-        LF["fast-lane.md task blocks status ready blocked done"]
+    subgraph LF["Board lane .md file"]
+        L1["task blocks status ready blocked done"]
     end
-
-    subgraph WORKER["LANE WORKER background process"]
-        POLL["poll_lane() Read lane file find ready tasks"]
-        PRIO["Sort by priority Pick highest"]
-        EXEC["execute(task) API call script sub-agent"]
-        WRITE["write_result() Update task block in lane file"]
-        HB["Heartbeat worker-heartbeat.json"]
-        POLL --> PRIO --> EXEC --> WRITE --> POLL
-        WRITE -.-> HB
+    subgraph WORKER["LANE WORKER"]
+        P["poll_lane()"]
+        R["Sort pick highest priority"]
+        E["execute(task)"]
+        W["write_result()"]
+        H["Heartbeat worker.json"]
+        P --> R --> E --> W --> P
+        W -.-> H
     end
-
-    BOARD_FILE <--> POLL
-
-    subgraph SUPERVISOR["SUPERVISOR external"]
-        SUP["Check heartbeat Restart if stale"]
-    end
-    HB -.-> SUP
-
-    subgraph TYPES["WORKER TYPES by lane speed"]
-        FW["Fast Worker Poll 30-60s API surface product defects"]
-        MW["Medium Worker Poll 2-5min ETL data pipeline sync"]
-        SW["Slow Worker Poll 5-15min Strategy brief research"]
-    end
-    WORKER -.-> FW
-    WORKER -.-> MW
-    WORKER -.-> SW
-
-    style BOARD_FILE fill:#16213e,stroke:#4a9eff,stroke-width:2px
+    LF <--> P
+    H -.-> S["Supervisor check restart"]
+    W --> T1["Fast Worker 30-60s"]
+    W --> T2["Medium Worker 2-5min"]
+    W --> T3["Slow Worker 5-15min"]
+    style LF fill:#16213e,stroke:#4a9eff,stroke-width:2px
     style WORKER fill:#0a150a,stroke:#50fa7b,stroke-width:2px
-    style SUPERVISOR fill:#1a0f0f,stroke:#ff5555,stroke-width:1px
-    style TYPES fill:#12122a,stroke:#f1fa8c,stroke-width:1px
+    style S fill:#1a0f0f,stroke:#ff5555,stroke-width:1px
 ```

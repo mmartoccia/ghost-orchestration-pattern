@@ -1,38 +1,26 @@
 ```mermaid
-%%{init: {"theme": "dark"}}%%
+%%{init: { "theme": "dark" }}%%
 flowchart TB
-    subgraph CLIENTS["CLIENTS"]
-        DAEMON["Task Loop Daemon"]
-        WORKER["Lane Worker"]
-        HUMAN["Human Dashboard"]
-        CRON["Cron Scheduler"]
-    end
-
+    C1["Daemon"] --> API
+    C2["Worker"] --> API
+    C3["Human"] --> API
+    C4["Cron"] --> API
     subgraph API["ORCHESTRATION API /api"]
-        GET1["GET /tasks owner=X status=Y"]
-        GET2["GET /tasks/{id}"]
-        GET3["GET /tasks/{id}/blockers"]
-        GET4["GET /tasks/{id}/dependents"]
-        POST["POST /tasks/{id}/status"]
-        GET5["GET /orchestration/handoffs"]
+        G1["GET /tasks owner status"]
+        G2["GET /tasks/id blockers"]
+        G3["GET /tasks/id dependents"]
+        P["POST /tasks/id/status"]
+        G4["GET /handoffs"]
     end
-
-    CLIENTS -->|"REST"| API
-
-    subgraph SEQ["POST /tasks/{id}/status Atomicity"]
-        S1["1 Write orchestration log BEFORE state change"]
-        S2["2 Update task state in task store"]
-        S3["3 Check handoff protocol if done unblock dependents"]
-        S4["4 Send notification best-effort after log committed"]
+    P --> SEQ
+    subgraph SEQ["POST /tasks/id/status ATOMICITY"]
+        S1["1 Write log BEFORE state change"]
+        S2["2 Update task state"]
+        S3["3 Check handoff protocol"]
+        S4["4 Send notification"]
         S1 --> S2 --> S3 --> S4
     end
-    POST --> SEQ
-
-    style CLIENTS fill:#1a1a2e,stroke:#4a9eff,stroke-width:1px
+    style C1 fill:#1a1a2e,stroke:#4a9eff,stroke-width:1px
     style API fill:#16213e,stroke:#4a9eff,stroke-width:2px
     style SEQ fill:#0a150a,stroke:#50fa7b,stroke-width:2px
-    style S1 fill:#0d1117,stroke:#50fa7b
-    style S2 fill:#0d1117,stroke:#50fa7b
-    style S3 fill:#0d1117,stroke:#50fa7b
-    style S4 fill:#0d1117,stroke:#f1fa8c
 ```

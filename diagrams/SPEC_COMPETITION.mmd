@@ -1,55 +1,29 @@
 ```mermaid
-%%{init: {"theme": "dark"}}%%
+%%{init: { "theme": "dark" }}%%
 flowchart TB
-    TASK["Task enters Competition Mode"]
-    POLICY["Policy Gate focus_keywords blocked_domain_patterns"]
-    TASK --> POLICY
-
-    POLICY -->|"pass"| QUEUE["task-queue awaiting batch slot"]
-    POLICY -->|"fail"| REJECT["rejected below threshold"]
-
-    QUEUE --> ROUND
-
-    subgraph ROUND["COMPETITION ROUND"]
-        A1["Agent A model X rating R1 writes spec"]
-        A2["Agent B model Y rating R2 writes spec"]
-        RV["Reviewer scores both Correctness 40pct Alignment 35pct Risk 25pct"]
-        SA["Spec A score 84.2"]
-        SB["Spec B score 79.7"]
-        A1 --> RV
-        A2 --> RV
-        RV --> SA
-        RV --> SB
-        SA --> W["Winner A dispatch"]
-        SB --> L["Loser B archive"]
-    end
-
-    W --> DISP["spec-dispatches Winner spec to workers"]
-    L --> ARCH["spec-results with feedback"]
-    W -.->|"ELO update"| ELO
-    L -.->|"ELO update"| ELO
-
-    subgraph ELO["ELO RATING"]
-        E1["Agent A R1 to R1+16"]
-        E2["Agent B R2 to R2-16"]
-    end
-    E1 --> ELFILE["spec-elo.json agents ratings"]
-    E2 --> ELFILE
-
-    DISP --> WORKERS["Workers Codex Gemini"]
-    WORKERS --> CB["spec-callbacks"]
-    CB --> JD["Judge scores result"]
-    JD --> READY["ready-specs Approved builds to Board"]
-
-    style TASK fill:#1a1a2e,stroke:#4a9eff,stroke-width:1px
-    style POLICY fill:#0d1117,stroke:#f1fa8c,stroke-width:1px
-    style QUEUE fill:#0d1117,stroke:#4a9eff,stroke-width:1px
-    style REJECT fill:#1a0a0a,stroke:#666666,stroke-width:1px
-    style ROUND fill:#150a1a,stroke:#bd93f9,stroke-width:2px
+    T["Task enters competition"] --> P["Policy gate"]
+    P -->|"pass"| Q["task-queue"]
+    P -->|"fail"| R["rejected"]
+    Q --> A["Agent A writes spec"]
+    Q --> B["Agent B writes spec"]
+    A --> V["Reviewer scores both"]
+    B --> V
+    V --> W["Winner dispatch"]
+    V --> L["Loser archive"]
+    W --> D["spec-dispatches"]
+    L --> A2["spec-results"]
+    W -.->|"ELO"| E1["Agent A rating up"]
+    L -.->|"ELO"| E2["Agent B rating down"]
+    E1 --> EL["spec-elo.json"]
+    E2 --> EL
+    D --> WK["Workers"]
+    WK --> CB["spec-callbacks"]
+    CB --> J["Judge"]
+    J --> RD["ready-specs Board"]
+    style T fill:#1a1a2e,stroke:#4a9eff,stroke-width:1px
+    style P fill:#0d1117,stroke:#f1fa8c,stroke-width:1px
+    style Q fill:#0d1117,stroke:#4a9eff,stroke-width:1px
+    style R fill:#1a0a0a,stroke:#666666,stroke-width:1px
     style W fill:#0a150a,stroke:#50fa7b,stroke-width:1px
-    style DISP fill:#0a150a,stroke:#50fa7b,stroke-width:1px
-    style ARCH fill:#1a0a0a,stroke:#ff5555,stroke-width:1px
-    style ELO fill:#0d1117,stroke:#f1fa8c,stroke-width:1px
-    style WORKERS fill:#0d1117,stroke:#4a9eff,stroke-width:1px
-    style READY fill:#0a150a,stroke:#50fa7b,stroke-width:1px
+    style EL fill:#0d1117,stroke:#f1fa8c,stroke-width:1px
 ```
