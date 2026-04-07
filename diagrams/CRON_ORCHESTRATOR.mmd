@@ -1,28 +1,30 @@
 graph TD
-    R1[Every 15 minutes]
-    R2[Collect metrics]
-    R3[Analyze outputs]
-    R4[Evaluate TASTE rubric]
-    R5[Generate proposals]
-    R6[Write JSONL log]
-    R7[Push to board]
+    C1[Every 15 minutes]
+    C2[Collect metrics, queue depth error rate throughput cost stall rate]
+    C3[Analyze recent outputs, quality signal and cost]
+    C4[Evaluate TASTE rubric]
     T1[Throughput]
     T2[Accuracy]
     T3[Stability]
     T4[Cost]
     T5[Evolution]
-    P1[Fast lane proposal]
-    P2[Quality proposal]
-    P3[Incident proposal]
-    P4[Org wide proposal]
+    C5[Generate proposals for deviations over threshold]
+    P1[Throughput deviation to fast lane]
+    P2[Accuracy deviation to quality work]
+    P3[Stability deviation to incident board]
+    P4[Cost deviation to org wide]
+    P5[Evolution deviation to strategy]
+    C6[Write JSONL log]
+    C7[Push urgent proposals to board]
 
-    R1 --> R2 --> R3 --> R4 --> R5 --> R6 --> R7
-    R4 --> T1
-    R4 --> T2
-    R4 --> T3
-    R4 --> T4
-    R4 --> T5
-    R5 --> P1
-    R5 --> P2
-    R5 --> P3
-    R5 --> P4
+    C1 --> C2 --> C3 --> C4 --> C5 --> C6 --> C7
+    C4 --> T1
+    C4 --> T2
+    C4 --> T3
+    C4 --> T4
+    C4 --> T5
+    C5 --> P1
+    C5 --> P2
+    C5 --> P3
+    C5 --> P4
+    C5 --> P5

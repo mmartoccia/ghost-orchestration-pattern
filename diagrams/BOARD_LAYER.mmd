@@ -1,21 +1,31 @@
 graph TD
-    S1[Inbound signals]
-    S2[Human triage]
-    S3[Fast lane]
-    S4[Medium lane]
-    S5[Slow lane]
-    S6[Incident board]
-    T1[Topic 6]
-    T2[Topic 5]
-    T3[Topic 3]
-    T4[Topic 1]
+    B1[Work arrival, Telegram email cron human input]
+    B2[Human triage, choose lane by primary surface]
+    B3[Fast lane, customer facing product API]
+    B4[Medium lane, data pipeline ETL]
+    B5[Slow lane, strategy research]
+    B6[Incident board, cross lane issues]
+    B7[Org wide board, governance staffing]
+    B8[Topic map, stable channel to file mapping]
+    N1[Telegram Topic 6, fast lane events]
+    N2[Telegram Topic 5, medium lane events]
+    N3[Telegram Topic 3, slow lane events]
+    N4[Telegram Topic 1, cross lane incidents]
 
-    S1 --> S2
-    S2 --> S3
-    S2 --> S4
-    S2 --> S5
-    S2 --> S6
-    S3 --> T1
-    S4 --> T2
-    S5 --> T3
-    S6 --> T4
+    B1 --> B2
+    B2 --> B3
+    B2 --> B4
+    B2 --> B5
+    B2 --> B6
+    B2 --> B7
+    B2 --> B8
+    B3 --> N1
+    B4 --> N2
+    B5 --> N3
+    B6 --> N4
+    B3 --> B6
+    B4 --> B6
+    B5 --> B6
+    B3 --> B7
+    B4 --> B7
+    B5 --> B7

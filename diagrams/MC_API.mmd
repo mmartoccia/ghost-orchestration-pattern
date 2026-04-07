@@ -1,26 +1,29 @@
 graph TD
     C1[Daemon]
     C2[Worker]
-    C3[Human]
-    C4[Cron]
-    A1[Orchestration API]
-    E1[Get tasks]
-    E2[Get blockers]
-    E3[Get dependents]
-    E4[Post task status]
-    E5[Get handoffs]
-    Q1[Write log first]
-    Q2[Update task state]
-    Q3[Check handoff]
-    Q4[Send notification]
+    C3[Human dashboard]
+    C4[Cron scheduler]
+    A0[Orchestration API, slash api]
+    A1[Get tasks, owner status priority filters]
+    A2[Get task by id]
+    A3[Get blockers]
+    A4[Get dependents]
+    A5[Post task status]
+    A6[Get handoffs]
+    Q1[Write orchestration log first]
+    Q2[Update task state in store]
+    Q3[Check handoff protocol and unblock dependents]
+    Q4[Send notification after log commit]
+    R1[Response with task transition and handoffs]
 
-    C1 --> A1
-    C2 --> A1
-    C3 --> A1
-    C4 --> A1
-    A1 --> E1
-    A1 --> E2
-    A1 --> E3
-    A1 --> E4
-    A1 --> E5
-    E4 --> Q1 --> Q2 --> Q3 --> Q4
+    C1 --> A0
+    C2 --> A0
+    C3 --> A0
+    C4 --> A0
+    A0 --> A1
+    A0 --> A2
+    A0 --> A3
+    A0 --> A4
+    A0 --> A5
+    A0 --> A6
+    A5 --> Q1 --> Q2 --> Q3 --> Q4 --> R1

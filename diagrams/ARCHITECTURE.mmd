@@ -1,26 +1,67 @@
 graph TD
-    L1[Layer 1 Board]
+    B0[Layer 1 Board]
     B1[Human intake and triage]
-    B2[Topic lanes]
-    B3[Incident board]
-    L2[Layer 2 Orchestration]
-    O1[Task loop daemon]
-    O2[Cron scheduler]
-    O3[Spec competition]
-    O4[Lane workers]
-    O5[Orchestration log]
-    L3[Layer 3 Data]
-    D1[Canonical source]
-    D2[ETL sync]
-    D3[Derived store]
+    B2[Topic map, channel to file routing]
+    B3[Fast lane, product API user facing]
+    B4[Medium lane, data pipeline ETL]
+    B5[Slow lane, strategy research]
+    B6[Incident board, cross lane escalation]
+    B7[Org wide board, governance staffing]
 
-    L1 --> B1 --> B2 --> B3
-    L1 --> L2
-    L2 --> O1
-    L2 --> O2
-    L2 --> O3
-    L2 --> O4
-    O1 --> O5
-    O2 --> O5
-    L2 --> L3
-    L3 --> D1 --> D2 --> D3
+    O0[Layer 2 Orchestration]
+    O1[Task loop daemon]
+    O2[Pick next task, WIP 1, highest priority]
+    O3[Execute task, run spawn dispatch]
+    O4[Mark done or blocked, write log before notify]
+    O5[Cron scheduler]
+    O6[Collect metrics and analyze outputs]
+    O7[Evaluate TASTE and generate proposals]
+    O8[Spec competition]
+    O9[Agent A and Agent B write specs]
+    O10[Reviewer scores both and updates ELO]
+    O11[Lane workers]
+    O12[Fast worker, 30 to 60 seconds]
+    O13[Medium worker, 2 to 5 minutes]
+    O14[Slow worker, 5 to 15 minutes]
+
+    D0[Layer 3 Data]
+    D1[Canonical source, append only for consumers]
+    D2[ETL and sync, schema validation]
+    D3[Derived store, PostgreSQL or SQLite]
+
+    L0[orchestration log JSONL, immutable append only]
+    A0[Orchestration API]
+    A1[Get tasks]
+    A2[Get blockers and dependents]
+    A3[Post task status, atomic log state handoff notify]
+    A4[Get handoffs]
+
+    B0 --> B1
+    B1 --> B2
+    B1 --> B3
+    B1 --> B4
+    B1 --> B5
+    B1 --> B6
+    B1 --> B7
+
+    B0 --> O0
+    O0 --> O1 --> O2 --> O3 --> O4
+    O0 --> O5 --> O6 --> O7
+    O0 --> O8 --> O9 --> O10
+    O0 --> O11
+    O11 --> O12
+    O11 --> O13
+    O11 --> O14
+
+    O4 --> L0
+    O7 --> L0
+
+    O0 --> A0
+    A0 --> A1
+    A0 --> A2
+    A0 --> A3
+    A0 --> A4
+
+    O0 --> D0
+    D0 --> D1 --> D2 --> D3
+    L0 --> B0

@@ -2,22 +2,30 @@
 
 ```mermaid
 graph TD
-    W1[Lane file]
-    W2[Poll lane]
-    W3[Pick next task]
-    W4[Execute task]
-    W5[Write result]
-    W6[Fast worker]
-    W7[Medium worker]
-    W8[Slow worker]
-    W9[Worker heartbeat]
-    W10[Supervisor]
+    W1[Lane file, markdown task blocks]
+    W2[Ready blocked done task state]
+    W3[Poll lane for ready tasks]
+    W4[Sort by priority]
+    W5[Pick highest priority task]
+    W6[Execute task, API call script or sub agent]
+    W7[Write result back to board]
+    W8[Worker heartbeat JSON]
+    W9[Supervisor checks staleness and restarts]
+    W10[Fast lane worker, 30 to 60 seconds]
+    W11[Medium lane worker, 2 to 5 minutes]
+    W12[Slow lane worker, 5 to 15 minutes]
+    W13[Worker registry and pid files]
 
-    W1 --> W2 --> W3 --> W4 --> W5 --> W2
-    W5 --> W6
-    W5 --> W7
-    W5 --> W8
-    W5 --> W9 --> W10
+    W1 --> W2
+    W1 --> W3 --> W4 --> W5 --> W6 --> W7 --> W3
+    W7 --> W1
+    W7 --> W8 --> W9
+    W13 --> W10
+    W13 --> W11
+    W13 --> W12
+    W10 --> W3
+    W11 --> W3
+    W12 --> W3
 ```
 
 A lane worker is a background process dedicated to a single coordination lane. Each worker watches its lane for new work, executes tasks, and writes results back to the Board.
