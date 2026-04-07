@@ -1,0 +1,70 @@
+# Task Schema Reference
+# Full YAML schema for a Board-layer task
+# All fields are recommended unless marked optional
+
+id: TASK-001
+uid: 01KXXXXXXXXXXXXXXXX        # human-readable UID, v1 format
+title: "Short description of what this task is"
+status: in-progress            # required
+
+# ── Ownership ──────────────────────────────────────────────────
+owner: lane-product            # lane responsible for this task
+executor: daemon               # who executes: daemon | worker | human | agent
+priority: high                 # critical | high | medium | low
+
+# ── Blocking Graph ─────────────────────────────────────────────
+blockers:
+  - id: TASK-000              # blocking task ID
+    owner: lane-data           # who owns the blocker
+    reason: "Needs data pipeline before this can start"
+    requiredOutcome: "Pipeline delivering to store X"
+    resolved: false            # auto-set by orchestration on unblock
+
+downstreamDependents:           # tasks waiting on this one
+  - TASK-003
+  - TASK-004
+
+# ── Handoff Protocol ───────────────────────────────────────────
+handoffProtocol:
+  from: lane-data              # current owner
+  to: lane-product             # next owner after completion
+  trigger: status == done      # condition that fires the handoff
+  notification: "TASK-001 done. lane-product: dependency resolved."
+
+# ── Timing ─────────────────────────────────────────────────────
+staledThreshold: 172800       # seconds before considered stalled (48h default)
+startedAt: '2026-04-07T12:00:00Z'
+updatedAt: '2026-04-07T14:30:00Z'
+completedAt: null             # set on done/escalated
+
+# ── Execution (set by executor) ───────────────────────────────
+retries: 0                    # current retry count
+maxRetries: 2
+lastError: null               # set on failure
+
+# ── Metadata ───────────────────────────────────────────────────
+tags:
+  - enrichment
+  - api
+  - lane-product
+createdAt: '2026-04-07T12:00:00Z'
+createdBy: human              # human | daemon | worker | scheduler
+source: board                 # board | scheduler | worker | import
+
+# ── Description ────────────────────────────────────────────────
+description: |
+  Optional longer description.
+  What is this task trying to accomplish?
+  What does done look like?
+
+# ── Notes ──────────────────────────────────────────────────────
+notes:
+  - '2026-04-07: Initial triage'
+  - '2026-04-08: Unblocked after TASK-000 completed'
+
+# ── Optional Fields ────────────────────────────────────────────
+# lane: fast | medium | slow  (lane classification, see SLA.md)
+# severity: critical | high | medium | low  (see SLA.md)
+# estimationHours: 4          (for tracking)
+# actualHours: null           (filled on completion)
+# escalationCount: 0          (bump on each escalation)

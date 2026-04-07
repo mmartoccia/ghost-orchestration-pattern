@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Orchestration Log Entry",
+  "description": "Single immutable entry in the append-only orchestration log (orchestration.log.jsonl)",
+  "type": "object",
+  "required": ["ts", "task", "from", "to", "actor"],
+
+  "properties": {
+    "ts": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp when event was written"
+    },
+    "task": {
+      "type": "string",
+      "description": "Task ID this event pertains to"
+    },
+    "from": {
+      "type": ["string", "null"],
+      "description": "Previous state. Null for newly created tasks."
+    },
+    "to": {
+      "type": "string",
+      "description": "New state after this event"
+    },
+    "actor": {
+      "type": "string",
+      "enum": ["daemon", "scheduler", "worker", "human", "agent"],
+      "description": "What triggered this state change"
+    },
+    "duration_ms": {
+      "type": "integer",
+      "description": "Execution time in milliseconds. Present on done/fail events."
+    },
+    "unblocked_by": {
+      "type": "string",
+      "description": "Task ID that resolved the blocker. Present on unblock events."
+    },
+    "escalation_reason": {
+      "type": "string",
+      "description": "Why escalation fired. Present on escalation events."
+    },
+    "retry_count": {
+      "type": "integer",
+      "description": "Retry attempt number. Present on retry events."
+    },
+    "error": {
+      "type": "string",
+      "description": "Error message. Present on fail/escalate events."
+    },
+    "note": {
+      "type": "string",
+      "description": "Human-readable context. Optional everywhere."
+    }
+  }
+}

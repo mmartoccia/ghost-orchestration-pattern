@@ -1,0 +1,76 @@
+%%{init: {"theme": "dark"}}%%
+flowchart TB
+    subgraph BOARD["LAYER 1 — BOARD"]
+        direction TB
+        L1["Human work intake\n+ Triage"]
+        LANES["Lane A  ·  Lane B  ·  Lane C  ·  Lane N..."]
+        DASH["Dashboard\n(Read-only state view)"]
+        INC["Incident Board\n(Cross-Lane Escalation)"]
+        
+        L1 --> LANES
+        LANES --> DASH
+        LANES --> INC
+    end
+
+    BOARD -->|"task dispatch"| ORCH
+
+    subgraph ORCH["LAYER 2 — ORCHESTRATION"]
+        direction LR
+        
+        subgraph LOOP["Task Loop (Daemon)"]
+            PN["pick_next()\nWIP=1 · highest-prio"]
+            EX["execute_task()\nrun · spawn · dispatch"]
+            LOG["mark done/blocked\nwrite orchestration log"]
+            PN --> EX --> LOG --> PN
+            LOG -.->|"backlog empty"| SLP["sleep 30s"]
+            SLP --> PN
+        end
+        
+        subgraph SCHED["Cron Scheduler"]
+            M["Collect metrics"]
+            A["Analyze outputs\nquality · cost"]
+            E["Evaluate vs rubric"]
+            P["Propose improvements"]
+            M --> A --> E --> P
+        end
+        
+        subgraph SPEC["Spec Competition\n(optional)"]
+            QA["Agent A\nwrites spec"]
+            QB["Agent B\nwrites spec"]
+            RV["Reviewer scores"]
+            QA & QB --> RV
+            RV --> W["Winner\n→ dispatch"]
+            RV -.-> ELO["ELO ratings"]
+        end
+        
+        subgraph WORKERS["Lane Workers"]
+            WA["Worker A\n→ Lane A"]
+            WB["Worker B\n→ Lane B"]
+            WN["Worker N\n→ Lane N"]
+        end
+    end
+
+    ORCH -->|"read / write"| DATA
+
+    subgraph DATA["LAYER 3 — DATA"]
+        PROD["Canonical Source\n(append-only, read-only)"]
+        SYNC["ETL / Sync\nschema validation\nscheduled or event-driven"]
+        DER["Derived Store\n(PostgreSQL / SQLite)\nmaterializations + business logic"]
+        
+        PROD --> SYNC --> DER
+    end
+
+    LOOP -.->|"write log"| OLOG
+    SCHED -.->|"write log"| OLOG
+    OLOG["orchestration.log.jsonl\n(immutable append-only)"]
+
+    style BOARD fill:#1a1a2e,stroke:#4a9eff,stroke-width:2px,color:#e0e0e0
+    style ORCH fill:#16213e,stroke:#4a9eff,stroke-width:2px,color:#e0e0e0
+    style DATA fill:#0f3460,stroke:#4a9eff,stroke-width:2px,color:#e0e0e0
+    style LOOP fill:#0a1a0a,stroke:#50fa7b,stroke-width:1px,color:#e0e0e0
+    style SCHED fill:#120f1a,stroke:#bd93f9,stroke-width:1px,color:#e0e0e0
+    style SPEC fill:#1a0a0a,stroke:#ff5555,stroke-width:1px,color:#e0e0e0
+    style WORKERS fill:#14140a,stroke:#f1fa8c,stroke-width:1px,color:#e0e0e0
+    style PROD fill:#0a1215,stroke:#8be9fd,stroke-width:1px,color:#e0e0e0
+    style DER fill:#0a1215,stroke:#50fa7b,stroke-width:1px,color:#e0e0e0
+    style OLOG fill:#0d0d20,stroke:#4a9eff,stroke-width:1px,color:#4a9eff
