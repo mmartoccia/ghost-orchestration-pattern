@@ -1,30 +1,16 @@
 ```mermaid
 flowchart TB
-    subgraph IN["WORK ARRIVAL"]
-        MSG["Telegram Email Cron Alert Human"]
-        TRIAGE["Human Triage choose lane"]
-    end
-    MSG --> TRIAGE
-    subgraph BOARD["LAYER 1 - BOARD"]
-        FL["fast-lane.md Product API"]
-        ML["medium-lane.md Data Pipeline ETL"]
-        SL["slow-lane.md Strategy Research"]
-        IB["incident-board.md cross-lane"]
-        OW["org-wide.md governance"]
-        FL --> IB
-        ML --> IB
-        SL --> IB
-    end
-    TRIAGE --> BOARD
-    FL --> N1["Fast Telegram Topic 6"]
-    ML --> N2["Medium Telegram Topic 5"]
-    SL --> N3["Slow Telegram Topic 3"]
-    IB --> N4["Incident Telegram Topic 1"]
-    style IN fill:#1a1a2e,stroke:#4a9eff,stroke-width:1px
-    style BOARD fill:#16213e,stroke:#4a9eff,stroke-width:2px
-    style FL fill:#0d1117,stroke:#50fa7b,stroke-width:1px
-    style ML fill:#0d1117,stroke:#8be9fd,stroke-width:1px
-    style SL fill:#0d1117,stroke:#f1fa8c,stroke-width:1px
-    style IB fill:#1a0a0a,stroke:#ff5555,stroke-width:1px
-    style OW fill:#0f1a0f,stroke:#50fa7b,stroke-width:1px
+    M["Telegram Email Cron Alert Human"]
+    T["Human Triage choose lane"]
+    M --> T
+    B --> F["fast-lane.md Product API"]
+    B --> M2["medium-lane.md Data Pipeline ETL"]
+    B --> S["slow-lane.md Strategy Research"]
+    B --> I["incident-board.md cross-lane"]
+    B --> O["org-wide.md governance"]
+    T --> B
+    F --> N1["Fast Telegram Topic 6"]
+    M2 --> N2["Medium Telegram Topic 5"]
+    S --> N3["Slow Telegram Topic 3"]
+    I --> N4["Incident Telegram Topic 1"]
 ```

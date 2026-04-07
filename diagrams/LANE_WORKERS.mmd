@@ -1,23 +1,16 @@
 ```mermaid
 flowchart TB
-    subgraph LF["Board lane .md file"]
-        L1["task blocks status ready blocked done"]
-    end
-    subgraph WORKER["LANE WORKER"]
-        P["poll_lane()"]
-        R["Sort pick highest priority"]
-        E["execute(task)"]
-        W["write_result()"]
-        H["Heartbeat worker.json"]
-        P --> R --> E --> W --> P
-        W -.-> H
-    end
-    LF <--> P
-    H -.-> S["Supervisor check restart"]
+    L["lane .md file task blocks"]
+    P["poll_lane()"]
+    R["Sort pick priority"]
+    E["execute(task)"]
+    W["write_result()"]
+    H["Heartbeat worker.json"]
+    P --> R --> E --> W --> P
+    L <--> P
+    W -.-> H
+    H -.-> S["Supervisor restart"]
     W --> T1["Fast Worker 30-60s"]
     W --> T2["Medium Worker 2-5min"]
     W --> T3["Slow Worker 5-15min"]
-    style LF fill:#16213e,stroke:#4a9eff,stroke-width:2px
-    style WORKER fill:#0a150a,stroke:#50fa7b,stroke-width:2px
-    style S fill:#1a0f0f,stroke:#ff5555,stroke-width:1px
 ```

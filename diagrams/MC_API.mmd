@@ -1,25 +1,22 @@
 ```mermaid
 flowchart TB
-    C1["Daemon"] --> API
-    C2["Worker"] --> API
-    C3["Human"] --> API
-    C4["Cron"] --> API
-    subgraph API["ORCHESTRATION API /api"]
+    C1["Daemon"] --> A
+    C2["Worker"] --> A
+    C3["Human"] --> A
+    C4["Cron"] --> A
+    subgraph A["ORCHESTRATION API /api"]
         G1["GET /tasks owner status"]
         G2["GET /tasks/id blockers"]
         G3["GET /tasks/id dependents"]
         P["POST /tasks/id/status"]
         G4["GET /handoffs"]
     end
-    P --> SEQ
-    subgraph SEQ["POST /tasks/id/status ATOMICITY"]
-        S1["1 Write log BEFORE state change"]
-        S2["2 Update task state"]
-        S3["3 Check handoff protocol"]
-        S4["4 Send notification"]
-        S1 --> S2 --> S3 --> S4
+    P --> S
+    subgraph S["POST /tasks/id/status ATOMICITY"]
+        X1["1 Write log BEFORE state change"]
+        X2["2 Update task state"]
+        X3["3 Check handoff protocol"]
+        X4["4 Send notification"]
+        X1 --> X2 --> X3 --> X4
     end
-    style C1 fill:#1a1a2e,stroke:#4a9eff,stroke-width:1px
-    style API fill:#16213e,stroke:#4a9eff,stroke-width:2px
-    style SEQ fill:#0a150a,stroke:#50fa7b,stroke-width:2px
 ```
