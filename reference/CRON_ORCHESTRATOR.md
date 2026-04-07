@@ -1,27 +1,34 @@
 # Cron Orchestrator — Reference Implementation
 
 ```mermaid
-flowchart TD
-    E["Every 15 minutes"] --> M1
-    subgraph C["RUN CYCLE"]
-        M1["1. Collect Metrics"] --> M2["2. Analyze Outputs"]
-        M2 --> M3["3. Evaluate TASTE Rubric"]
-        M3 --> M4["4. Generate Proposals"]
-        M4 --> M5["5. Write JSONL Log"]
-        M5 --> M6["6. Push to Board"]
-    end
-    M3 -.-> T
-    subgraph T["TASTE RUBRIC"]
-        T1["Throughput"]
-        T2["Accuracy"]
-        T3["Stability"]
-        T4["Cost"]
-        T5["Evolution"]
-    end
-    M4 --> P1["Throughput - Fast-lane"]
-    M4 --> P2["Accuracy - Quality"]
-    M4 --> P3["Stability - Incident"]
-    M4 --> P4["Cost - Org-wide"]
+graph TD
+    R1[Every 15 minutes]
+    R2[Collect metrics]
+    R3[Analyze outputs]
+    R4[Evaluate TASTE rubric]
+    R5[Generate proposals]
+    R6[Write JSONL log]
+    R7[Push to board]
+    T1[Throughput]
+    T2[Accuracy]
+    T3[Stability]
+    T4[Cost]
+    T5[Evolution]
+    P1[Fast lane proposal]
+    P2[Quality proposal]
+    P3[Incident proposal]
+    P4[Org wide proposal]
+
+    R1 --> R2 --> R3 --> R4 --> R5 --> R6 --> R7
+    R4 --> T1
+    R4 --> T2
+    R4 --> T3
+    R4 --> T4
+    R4 --> T5
+    R5 --> P1
+    R5 --> P2
+    R5 --> P3
+    R5 --> P4
 ```
 
 The Cron Orchestrator is the observability and improvement layer. It runs on a fixed schedule (typically every 15 minutes) and does not execute tasks — it observes, evaluates, and proposes.

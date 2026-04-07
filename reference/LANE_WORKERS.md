@@ -1,17 +1,23 @@
 # Lane Workers — Reference Implementation
 
 ```mermaid
-flowchart TD
-    L["lane.md - task blocks"] --> P
-    P["poll_lane() - check for ready tasks"] --> R["Sort by priority - pick next task"]
-    R --> E["execute(task) - do the work"]
-    E --> W["write_result() - update Board"]
-    W --> P
-    W --> T1["Fast Worker - 30-60s cycle"]
-    W --> T2["Medium Worker - 2-5 min cycle"]
-    W --> T3["Slow Worker - 5-15 min cycle"]
-    W -.-> H["worker.json - Heartbeat"]
-    H -.-> S["Supervisor - auto-restart"]
+graph TD
+    W1[Lane file]
+    W2[Poll lane]
+    W3[Pick next task]
+    W4[Execute task]
+    W5[Write result]
+    W6[Fast worker]
+    W7[Medium worker]
+    W8[Slow worker]
+    W9[Worker heartbeat]
+    W10[Supervisor]
+
+    W1 --> W2 --> W3 --> W4 --> W5 --> W2
+    W5 --> W6
+    W5 --> W7
+    W5 --> W8
+    W5 --> W9 --> W10
 ```
 
 A lane worker is a background process dedicated to a single coordination lane. Each worker watches its lane for new work, executes tasks, and writes results back to the Board.

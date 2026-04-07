@@ -1,16 +1,17 @@
-```mermaid
-flowchart TB
-    L["lane .md file task blocks"]
-    P["poll_lane()"]
-    R["Sort pick priority"]
-    E["execute(task)"]
-    W["write_result()"]
-    H["Heartbeat worker.json"]
-    P --> R --> E --> W --> P
-    L <--> P
-    W -.-> H
-    H -.-> S["Supervisor restart"]
-    W --> T1["Fast Worker 30-60s"]
-    W --> T2["Medium Worker 2-5min"]
-    W --> T3["Slow Worker 5-15min"]
-```
+graph TD
+    W1[Lane file]
+    W2[Poll lane]
+    W3[Pick next task]
+    W4[Execute task]
+    W5[Write result]
+    W6[Fast worker]
+    W7[Medium worker]
+    W8[Slow worker]
+    W9[Worker heartbeat]
+    W10[Supervisor]
+
+    W1 --> W2 --> W3 --> W4 --> W5 --> W2
+    W5 --> W6
+    W5 --> W7
+    W5 --> W8
+    W5 --> W9 --> W10

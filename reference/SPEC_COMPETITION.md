@@ -1,23 +1,35 @@
 # Spec Competition + ELO Rating System
 
 ```mermaid
-flowchart TD
-    T["Task enters competition"] --> P["Policy gate - focus and block thresholds"]
-    P -->|"pass"| Q["task-queue - wait for slot"]
-    P -->|"fail"| RJ["rejected"]
-    Q --> A["Agent A writes spec"]
-    Q --> B["Agent B writes spec"]
-    A --> V["Reviewer scores both - quality x alignment x risk"]
-    B --> V
-    V --> W["Winner dispatched"]
-    V --> L["Loser archived"]
-    W -.->|"ELO up"| E1["Agent A rating increases"]
-    L -.->|"ELO down"| E2["Agent B rating decreases"]
-    E1 --> EL["spec-elo.json"]
-    E2 --> EL
-    W --> WK["Workers execute spec"]
-    WK --> CB["spec-callbacks"]
-    CB --> J["Judge evaluates result"]
+graph TD
+    S1[Task enters competition]
+    S2[Policy gate]
+    S3[Queue]
+    S4[Reject]
+    S5[Agent A writes spec]
+    S6[Agent B writes spec]
+    S7[Reviewer scores both]
+    S8[Winner dispatched]
+    S9[Loser archived]
+    S10[Agent A rating up]
+    S11[Agent B rating down]
+    S12[Spec elo file]
+    S13[Workers execute spec]
+    S14[Callback]
+    S15[Judge result]
+
+    S1 --> S2
+    S2 --> S3
+    S2 --> S4
+    S3 --> S5
+    S3 --> S6
+    S5 --> S7
+    S6 --> S7
+    S7 --> S8
+    S7 --> S9
+    S8 --> S10 --> S12
+    S9 --> S11 --> S12
+    S8 --> S13 --> S14 --> S15
 ```
 
 When a task requires a decision — which approach to take, which model to use, which design to implement — the Spec Competition mode runs multiple agents in parallel and picks the winner by scoring.

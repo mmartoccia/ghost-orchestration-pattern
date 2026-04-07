@@ -1,22 +1,29 @@
-```mermaid
-flowchart TB
-    T["Task enters competition"] --> P["Policy gate"]
-    P -->|"pass"| Q["task-queue"]
-    P -->|"fail"| R["rejected"]
-    Q --> A["Agent A writes spec"]
-    Q --> B["Agent B writes spec"]
-    A --> V["Reviewer scores both"]
-    B --> V
-    V --> W["Winner dispatch"]
-    V --> L["Loser archive"]
-    W --> D["spec-dispatches"]
-    L --> A2["spec-results"]
-    W -.->|"ELO"| E1["Agent A rating up"]
-    L -.->|"ELO"| E2["Agent B rating down"]
-    E1 --> EL["spec-elo.json"]
-    E2 --> EL
-    D --> WK["Workers"]
-    WK --> CB["spec-callbacks"]
-    CB --> J["Judge"]
-    J --> RD["ready-specs Board"]
-```
+graph TD
+    S1[Task enters competition]
+    S2[Policy gate]
+    S3[Queue]
+    S4[Reject]
+    S5[Agent A writes spec]
+    S6[Agent B writes spec]
+    S7[Reviewer scores both]
+    S8[Winner dispatched]
+    S9[Loser archived]
+    S10[Agent A rating up]
+    S11[Agent B rating down]
+    S12[Spec elo file]
+    S13[Workers execute spec]
+    S14[Callback]
+    S15[Judge result]
+
+    S1 --> S2
+    S2 --> S3
+    S2 --> S4
+    S3 --> S5
+    S3 --> S6
+    S5 --> S7
+    S6 --> S7
+    S7 --> S8
+    S7 --> S9
+    S8 --> S10 --> S12
+    S9 --> S11 --> S12
+    S8 --> S13 --> S14 --> S15

@@ -1,26 +1,32 @@
 # Orchestration API — Reference Implementation
 
 ```mermaid
-flowchart TD
-    C1["Daemon"] --> A
-    C2["Worker"] --> A
-    C3["Human"] --> A
-    C4["Cron"] --> A
-    subgraph A["ORCHESTRATION API /api"]
-        G1["GET /tasks"]
-        G2["GET /tasks/id/blockers"]
-        G3["GET /tasks/id/dependents"]
-        P["POST /tasks/id/status"]
-        G4["GET /handoffs"]
-    end
-    P --> S
-    subgraph S["POST atomicity sequence"]
-        X1["1. Write log FIRST"]
-        X2["2. Update task state"]
-        X3["3. Check handoff protocol"]
-        X4["4. Send notification"]
-        X1 --> X2 --> X3 --> X4
-    end
+graph TD
+    C1[Daemon]
+    C2[Worker]
+    C3[Human]
+    C4[Cron]
+    A1[Orchestration API]
+    E1[Get tasks]
+    E2[Get blockers]
+    E3[Get dependents]
+    E4[Post task status]
+    E5[Get handoffs]
+    Q1[Write log first]
+    Q2[Update task state]
+    Q3[Check handoff]
+    Q4[Send notification]
+
+    C1 --> A1
+    C2 --> A1
+    C3 --> A1
+    C4 --> A1
+    A1 --> E1
+    A1 --> E2
+    A1 --> E3
+    A1 --> E4
+    A1 --> E5
+    E4 --> Q1 --> Q2 --> Q3 --> Q4
 ```
 
 A lightweight REST API for task coordination. Every state mutation writes the orchestration log first, then updates task state, then fires notifications.

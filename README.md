@@ -45,31 +45,32 @@ tail -f orchestration.log.jsonl
 ### Full Architecture
 
 ```mermaid
-graph TB
-    subgraph BOARD["LAYER 1 - BOARD"]
-        INTAKE["Human work intake + Triage"]
-        LANES["fast-lane / medium-lane / slow-lane"]
-        INC["incident-board.md"]
-        INTAKE --> LANES
-        LANES --> INC
-    end
-    subgraph ORCH["LAYER 2 - ORCHESTRATION"]
-        DAEMON["Task Loop Daemon"]
-        CRONJ["Cron Scheduler 15min TASTE"]
-        SPEC["Spec Competition ELO"]
-        WORKERS["Lane Workers"]
-        OLOG["orchestration.log.jsonl"]
-        DAEMON -.-> OLOG
-        CRONJ -.-> OLOG
-    end
-    subgraph DATA["LAYER 3 - DATA"]
-        CANON["Canonical Source append-only"]
-        ETL["ETL Sync schema validation"]
-        STORE["Derived Store PostgreSQL SQLite"]
-        CANON --> ETL --> STORE
-    end
-    BOARD --> ORCH
-    ORCH --> DATA
+graph TD
+    L1[Layer 1 Board]
+    B1[Human intake and triage]
+    B2[Topic lanes]
+    B3[Incident board]
+    L2[Layer 2 Orchestration]
+    O1[Task loop daemon]
+    O2[Cron scheduler]
+    O3[Spec competition]
+    O4[Lane workers]
+    O5[Orchestration log]
+    L3[Layer 3 Data]
+    D1[Canonical source]
+    D2[ETL sync]
+    D3[Derived store]
+
+    L1 --> B1 --> B2 --> B3
+    L1 --> L2
+    L2 --> O1
+    L2 --> O2
+    L2 --> O3
+    L2 --> O4
+    O1 --> O5
+    O2 --> O5
+    L2 --> L3
+    L3 --> D1 --> D2 --> D3
 ```
 
 ---
@@ -78,100 +79,146 @@ graph TB
 
 ```mermaid
 graph TD
-    SIG["Inbound Signals - Telegram / Email / Cron / Alert"] --> TRIAGE["Human Triage - choose lane and priority"]
-    TRIAGE --> FL["fast-lane.md - Product / API"]
-    TRIAGE --> ML["medium-lane.md - Data / ETL"]
-    TRIAGE --> SL["slow-lane.md - Strategy"]
-    TRIAGE --> IB["incident-board.md - cross-lane"]
-    FL --> TG6["Telegram Topic 6"]
-    ML --> TG5["Telegram Topic 5"]
-    SL --> TG3["Telegram Topic 3"]
-    IB --> TG1["Telegram Topic 1"]
+    S1[Inbound signals]
+    S2[Human triage]
+    S3[Fast lane]
+    S4[Medium lane]
+    S5[Slow lane]
+    S6[Incident board]
+    T1[Topic 6]
+    T2[Topic 5]
+    T3[Topic 3]
+    T4[Topic 1]
+
+    S1 --> S2
+    S2 --> S3
+    S2 --> S4
+    S2 --> S5
+    S2 --> S6
+    S3 --> T1
+    S4 --> T2
+    S5 --> T3
+    S6 --> T4
 ```
 
 ### Lane Workers
 
 ```mermaid
 graph TD
-    LANE["lane.md - task blocks"] --> POLL
-    POLL --> LANE
-    POLL["poll_lane() - check for ready tasks"] --> SORT["Sort by priority - pick next task"]
-    SORT --> EXEC["execute task - do the work"]
-    EXEC --> WRITE["write_result() - update Board"]
-    WRITE --> POLL
-    WRITE --> TW1["Fast Worker - 30-60s cycle"]
-    WRITE --> TW2["Medium Worker - 2-5 min cycle"]
-    WRITE --> TW3["Slow Worker - 5-15 min cycle"]
-    WRITE -.-> HB["worker.json - Heartbeat"]
-    HB -.-> SUP["Supervisor - auto-restart"]
+    W1[Lane file]
+    W2[Poll lane]
+    W3[Pick next task]
+    W4[Execute task]
+    W5[Write result]
+    W6[Fast worker]
+    W7[Medium worker]
+    W8[Slow worker]
+    W9[Worker heartbeat]
+    W10[Supervisor]
+
+    W1 --> W2 --> W3 --> W4 --> W5 --> W2
+    W5 --> W6
+    W5 --> W7
+    W5 --> W8
+    W5 --> W9 --> W10
 ```
 
 ### Orchestration API
 
 ```mermaid
 graph TD
-    CL1["Daemon"] --> API
-    CL2["Worker"] --> API
-    CL3["Human"] --> API
-    CL4["Cron"] --> API
-    subgraph API["ORCHESTRATION API /api"]
-        EP1["GET /tasks"]
-        EP2["GET /tasks/id/blockers"]
-        EP3["GET /tasks/id/dependents"]
-        EP4["POST /tasks/id/status"]
-        EP5["GET /handoffs"]
-    end
-    subgraph SEQ["POST atomicity sequence"]
-        AT1["1. Write log FIRST"]
-        AT2["2. Update task state"]
-        AT3["3. Check handoff protocol"]
-        AT4["4. Send notification"]
-        AT1 --> AT2 --> AT3 --> AT4
-    end
-    EP4 --> SEQ
+    C1[Daemon]
+    C2[Worker]
+    C3[Human]
+    C4[Cron]
+    A1[Orchestration API]
+    E1[Get tasks]
+    E2[Get blockers]
+    E3[Get dependents]
+    E4[Post task status]
+    E5[Get handoffs]
+    Q1[Write log first]
+    Q2[Update task state]
+    Q3[Check handoff]
+    Q4[Send notification]
+
+    C1 --> A1
+    C2 --> A1
+    C3 --> A1
+    C4 --> A1
+    A1 --> E1
+    A1 --> E2
+    A1 --> E3
+    A1 --> E4
+    A1 --> E5
+    E4 --> Q1 --> Q2 --> Q3 --> Q4
 ```
 
 ### Cron Scheduler
 
 ```mermaid
 graph TD
-    TRIGGER["Every 15 minutes"] --> CM1["1. Collect Metrics"]
-    CM1 --> CM2["2. Analyze Outputs"]
-    CM2 --> CM3["3. Evaluate TASTE Rubric"]
-    CM3 --> CM4["4. Generate Proposals"]
-    CM4 --> CM5["5. Write JSONL Log"]
-    CM5 --> CM6["6. Push to Board"]
-    CM3 -.-> TR1["Throughput"]
-    CM3 -.-> TR2["Accuracy"]
-    CM3 -.-> TR3["Stability"]
-    CM3 -.-> TR4["Cost"]
-    CM3 -.-> TR5["Evolution"]
-    CM4 --> PR1["Throughput - Fast-lane"]
-    CM4 --> PR2["Accuracy - Quality"]
-    CM4 --> PR3["Stability - Incident"]
-    CM4 --> PR4["Cost - Org-wide"]
+    R1[Every 15 minutes]
+    R2[Collect metrics]
+    R3[Analyze outputs]
+    R4[Evaluate TASTE rubric]
+    R5[Generate proposals]
+    R6[Write JSONL log]
+    R7[Push to board]
+    T1[Throughput]
+    T2[Accuracy]
+    T3[Stability]
+    T4[Cost]
+    T5[Evolution]
+    P1[Fast lane proposal]
+    P2[Quality proposal]
+    P3[Incident proposal]
+    P4[Org wide proposal]
+
+    R1 --> R2 --> R3 --> R4 --> R5 --> R6 --> R7
+    R4 --> T1
+    R4 --> T2
+    R4 --> T3
+    R4 --> T4
+    R4 --> T5
+    R5 --> P1
+    R5 --> P2
+    R5 --> P3
+    R5 --> P4
 ```
 
 ### Spec Competition + ELO
 
 ```mermaid
 graph TD
-    TASK["Task enters competition"] --> GATE["Policy gate - focus and block thresholds"]
-    GATE -->|"pass"| QUEUE["task-queue - wait for slot"]
-    GATE -->|"fail"| REJECT["rejected"]
-    QUEUE --> AGTA["Agent A writes spec"]
-    QUEUE --> AGTB["Agent B writes spec"]
-    AGTA --> REV["Reviewer scores both - quality x alignment x risk"]
-    AGTB --> REV
-    REV --> WIN["Winner dispatched"]
-    REV --> LOSE["Loser archived"]
-    WIN -.->|"ELO up"| ELO1["Agent A rating increases"]
-    LOSE -.->|"ELO down"| ELO2["Agent B rating decreases"]
-    ELO1 --> ELOF["spec-elo.json"]
-    ELO2 --> ELOF
-    WIN --> WKRS["Workers execute spec"]
-    WKRS --> CBACK["spec-callbacks"]
-    CBACK --> JUDGE["Judge evaluates result"]
+    S1[Task enters competition]
+    S2[Policy gate]
+    S3[Queue]
+    S4[Reject]
+    S5[Agent A writes spec]
+    S6[Agent B writes spec]
+    S7[Reviewer scores both]
+    S8[Winner dispatched]
+    S9[Loser archived]
+    S10[Agent A rating up]
+    S11[Agent B rating down]
+    S12[Spec elo file]
+    S13[Workers execute spec]
+    S14[Callback]
+    S15[Judge result]
+
+    S1 --> S2
+    S2 --> S3
+    S2 --> S4
+    S3 --> S5
+    S3 --> S6
+    S5 --> S7
+    S6 --> S7
+    S7 --> S8
+    S7 --> S9
+    S8 --> S10 --> S12
+    S9 --> S11 --> S12
+    S8 --> S13 --> S14 --> S15
 ```
 
 ---

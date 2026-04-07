@@ -1,26 +1,26 @@
-```mermaid
-flowchart TB
-    subgraph B["LAYER 1 - BOARD"]
-        L1["Human work intake + Triage"]
-        LANES["fast-lane medium-lane slow-lane"]
-        INC["incident-board.md cross-lane"]
-        L1 --> LANES
-        LANES --> INC
-    end
-    B --> O
-    subgraph O["LAYER 2 - ORCHESTRATION"]
-        L["Task Loop Daemon WIP=1"]
-        C["Cron Scheduler 15min TASTE"]
-        S["Spec Competition ELO"]
-        W["Lane Workers"]
-    end
-    O --> D
-    subgraph D["LAYER 3 - DATA"]
-        P["Canonical Source append-only"]
-        Y["ETL Sync schema validation"]
-        R["Derived Store PostgreSQL SQLite"]
-        P --> Y --> R
-    end
-    L -.-> LOG["orchestration.log.jsonl"]
-    C -.-> LOG
-```
+graph TD
+    L1[Layer 1 Board]
+    B1[Human intake and triage]
+    B2[Topic lanes]
+    B3[Incident board]
+    L2[Layer 2 Orchestration]
+    O1[Task loop daemon]
+    O2[Cron scheduler]
+    O3[Spec competition]
+    O4[Lane workers]
+    O5[Orchestration log]
+    L3[Layer 3 Data]
+    D1[Canonical source]
+    D2[ETL sync]
+    D3[Derived store]
+
+    L1 --> B1 --> B2 --> B3
+    L1 --> L2
+    L2 --> O1
+    L2 --> O2
+    L2 --> O3
+    L2 --> O4
+    O1 --> O5
+    O2 --> O5
+    L2 --> L3
+    L3 --> D1 --> D2 --> D3
