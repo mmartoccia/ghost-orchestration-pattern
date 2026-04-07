@@ -1,42 +1,38 @@
 ```mermaid
 %%{init: {"theme": "dark"}}%%
 flowchart TB
-    subgraph BOARD_FILE["Board Layer (lane .md file)"]
-        LF["fast-lane.md\ntask blocks\nstatus: ready | blocked | done"]
+    subgraph BOARD_FILE["Board Layer lane .md file"]
+        LF["fast-lane.md task blocks status ready blocked done"]
     end
 
-    subgraph WORKER["LANE WORKER  (background process)"]
-        POLL["poll_lane()\nRead lane file, find ready tasks"]
-        PRIO["Sort by priority\nPick highest"]
-        EXEC["execute(task)\nAPI call / script / sub-agent"]
-        WRITE["write_result()\nUpdate task block in lane file"]
-        HB["Heartbeat\nworker-heartbeat.json"]
-        
+    subgraph WORKER["LANE WORKER background process"]
+        POLL["poll_lane() Read lane file find ready tasks"]
+        PRIO["Sort by priority Pick highest"]
+        EXEC["execute(task) API call script sub-agent"]
+        WRITE["write_result() Update task block in lane file"]
+        HB["Heartbeat worker-heartbeat.json"]
         POLL --> PRIO --> EXEC --> WRITE --> POLL
-        WRITE -.->|"every cycle"| HB
+        WRITE -.-> HB
     end
 
-    BOARD_FILE <-->|"read / write"| POLL
+    BOARD_FILE <--> POLL
 
-    subgraph SUPERVISOR["SUPERVISOR  (external)"]
-        SUP["Check heartbeat\nRestart if stale\n(pid file)"]
+    subgraph SUPERVISOR["SUPERVISOR external"]
+        SUP["Check heartbeat Restart if stale"]
     end
-
     HB -.-> SUP
 
-    subgraph TYPES["WORKER TYPES  (by lane speed)"]
-        FW["Fast Worker\nPoll: 30-60s\nAPI surface, product defects"]
-        MW["Medium Worker\nPoll: 2-5min\nETL, data pipeline, sync"]
-        SW["Slow Worker\nPoll: 5-15min\nStrategy brief, research"]
+    subgraph TYPES["WORKER TYPES by lane speed"]
+        FW["Fast Worker Poll 30-60s API surface product defects"]
+        MW["Medium Worker Poll 2-5min ETL data pipeline sync"]
+        SW["Slow Worker Poll 5-15min Strategy brief research"]
     end
-
-    WORKER -.->|"instantiate"| FW
-    WORKER -.->|"instantiate"| MW
-    WORKER -.->|"instantiate"| SW
+    WORKER -.-> FW
+    WORKER -.-> MW
+    WORKER -.-> SW
 
     style BOARD_FILE fill:#16213e,stroke:#4a9eff,stroke-width:2px
     style WORKER fill:#0a150a,stroke:#50fa7b,stroke-width:2px
     style SUPERVISOR fill:#1a0f0f,stroke:#ff5555,stroke-width:1px
     style TYPES fill:#12122a,stroke:#f1fa8c,stroke-width:1px
-    style HB fill:#0d1117,stroke:#50fa7b,stroke-width:1px
 ```

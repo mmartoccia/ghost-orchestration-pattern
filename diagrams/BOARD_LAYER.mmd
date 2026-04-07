@@ -2,59 +2,42 @@
 %%{init: {"theme": "dark"}}%%
 flowchart TB
     subgraph INTAKE["WORK ARRIVAL"]
-        MSG["Telegram / Email\n/ Cron Alert\n/ Human Input"]
-        TRIAGE["Human Triage\nChoose lane by primary surface"]
+        MSG["Telegram Email Cron Alert Human Input"]
+        TRIAGE["Human Triage Choose lane by primary surface"]
     end
-
     MSG --> TRIAGE
 
-    subgraph BOARD["LAYER 1 — BOARD  (Markdown Files)"]
-        direction LR
-        
-        subgraph LANES["TOPIC LANES"]
-            FL["fast-lane.md\nProduct · API · User-facing\nPriority: Critical/High"]
-            ML["medium-lane.md\nData · Pipeline · ETL\nPriority: Medium"]
-            SL["slow-lane.md\nStrategy · Research\nPriority: Low"]
-        end
-        
-        subgraph INC["INCIDENT BOARD"]
-            IB["incident-board.md\nCross-lane issues\nNo clear single owner"]
-        end
-        
-        subgraph ORG["ORG-WIDE"]
-            OW["org-wide.md\nGovernance · Staffing\nCross-cutting decisions"]
-        end
-        
-        LANES -->|"cross-lane"| INC
-        LANES -->|"cross-cutting"| ORG
+    subgraph BOARD["LAYER 1 — BOARD"]
+        FL["fast-lane.md Product API User-facing"]
+        ML["medium-lane.md Data Pipeline ETL"]
+        SL["slow-lane.md Strategy Research"]
+        IB["incident-board.md Cross-lane issues"]
+        OW["org-wide.md Governance Staffing"]
+        FL --> IB
+        ML --> IB
+        SL --> IB
+        FL --> OW
     end
 
-    TRIAGE -->|"route to lane"| LANES
-
-    subgraph TOPICMAP["TOPIC MAP"]
-        TM["topic-map.yaml\nchannel → file mapping\nstable routing anchors"]
-    end
-
-    LANES -->|"notify"| NOTIFY
-    INC -->|"alert"| NOTIFY
+    TRIAGE -->|"route to lane"| BOARD
 
     subgraph NOTIFY["NOTIFICATION ROUTING"]
-        N1["Fast-lane events\n→ Telegram Topic 6"]
-        N2["Medium-lane events\n→ Telegram Topic 5"]
-        N3["Slow-lane events\n→ Telegram Topic 3"]
-        N4["Cross-lane incidents\n→ Telegram Topic 1"]
+        N1["Fast-lane events Telegram Topic 6"]
+        N2["Medium-lane events Telegram Topic 5"]
+        N3["Slow-lane events Telegram Topic 3"]
+        N4["Cross-lane incidents Telegram Topic 1"]
     end
-
     FL --> N1
     ML --> N2
     SL --> N3
-    INC --> N4
+    IB --> N4
 
     style INTAKE fill:#1a1a2e,stroke:#4a9eff,stroke-width:1px
     style BOARD fill:#16213e,stroke:#4a9eff,stroke-width:2px
-    style LANES fill:#0d1117,stroke:#4a9eff,stroke-width:1px
-    style INC fill:#1a0a0a,stroke:#ff5555,stroke-width:1px
-    style ORG fill:#0f1a0f,stroke:#50fa7b,stroke-width:1px
-    style TOPICMAP fill:#12122a,stroke:#bd93f9,stroke-width:1px
+    style FL fill:#0d1117,stroke:#50fa7b,stroke-width:1px
+    style ML fill:#0d1117,stroke:#8be9fd,stroke-width:1px
+    style SL fill:#0d1117,stroke:#f1fa8c,stroke-width:1px
+    style IB fill:#1a0a0a,stroke:#ff5555,stroke-width:1px
+    style OW fill:#0f1a0f,stroke:#50fa7b,stroke-width:1px
     style NOTIFY fill:#12122a,stroke:#f1fa8c,stroke-width:1px
 ```

@@ -1,81 +1,55 @@
 ```mermaid
 %%{init: {"theme": "dark"}}%%
 flowchart TB
-    subgraph IN["TASK ENTERS\nCOMPETITION MODE"]
-        TASK["Task requiring\nmulti-agent decision"]
-        POLICY["Policy Gate\nfocus_keywords\nblocked_domain_patterns"]
-    end
-
+    TASK["Task enters Competition Mode"]
+    POLICY["Policy Gate focus_keywords blocked_domain_patterns"]
     TASK --> POLICY
 
-    POLICY -->|"pass"| QUEUE["task-queue/\nAwaiting batch slot"]
-    POLICY -->|"fail"| REJECT["rejected/\nBelow threshold"]
+    POLICY -->|"pass"| QUEUE["task-queue awaiting batch slot"]
+    POLICY -->|"fail"| REJECT["rejected below threshold"]
 
     QUEUE --> ROUND
 
     subgraph ROUND["COMPETITION ROUND"]
-        A1["Agent A\n(model X, rating R₁)\nWrites spec"]
-        A2["Agent B\n(model Y, rating R₂)\nWrites spec"]
-        
-        REVIEW["Reviewer scores both\nCorrectness 40%\nAlignment 35%\nRisk (inverted) 25%"]
-        
-        A1 --> REVIEW
-        A2 --> REVIEW
-        
-        SCORE_A["Spec A score\n84.2"]
-        SCORE_B["Spec B score\n79.7"]
-        REVIEW --> SCORE_A
-        REVIEW --> SCORE_B
-        
-        WINNER["Winner: A\n→ dispatch"]
-        LOSER["Loser: B\n→ archive"]
-        SCORE_A --> WINNER
-        SCORE_B --> LOSER
+        A1["Agent A model X rating R1 writes spec"]
+        A2["Agent B model Y rating R2 writes spec"]
+        RV["Reviewer scores both Correctness 40pct Alignment 35pct Risk 25pct"]
+        SA["Spec A score 84.2"]
+        SB["Spec B score 79.7"]
+        A1 --> RV
+        A2 --> RV
+        RV --> SA
+        RV --> SB
+        SA --> W["Winner A dispatch"]
+        SB --> L["Loser B archive"]
     end
 
-    WINNER --> DISPATCH
-    LOSER --> ARCHIVE
-
-    subgraph DISPATCH["DISPATCH"]
-        D["spec-dispatches/\nWinner's spec → workers"]
-    end
-
-    subgraph ARCHIVE["ARCHIVE"]
-        AR["spec-results/\nwith feedback"]
-    end
-
-    WINNER -.->|"ELO update"| ELO
+    W --> DISP["spec-dispatches Winner spec to workers"]
+    L --> ARCH["spec-results with feedback"]
+    W -.->|"ELO update"| ELO
+    L -.->|"ELO update"| ELO
 
     subgraph ELO["ELO RATING"]
-        E1["Agent A: R₁ → R₁+16"]
-        E2["Agent B: R₂ → R₂-16"]
+        E1["Agent A R1 to R1+16"]
+        E2["Agent B R2 to R2-16"]
     end
+    E1 --> ELFILE["spec-elo.json agents ratings"]
+    E2 --> ELFILE
 
-    E1 --> SPEC_ELO["spec-elo.json\n{agents: {A: rating, B: rating}}"]
-    E2 --> SPEC_ELO
-
-    subgraph READY["READY"]
-        RD["ready-specs/\nApproved builds\n→ Board"]
-    end
-
-    D --> WORKERS
-    subgraph WORKERS["WORKERS"]
-        CW["Codex Worker\n(gpt-5.4)"]
-        GW["Gemini Worker\n(gemini-2.5-pro)"]
-    end
-
-    WORKERS --> CB["spec-callbacks/"]
+    DISP --> WORKERS["Workers Codex Gemini"]
+    WORKERS --> CB["spec-callbacks"]
     CB --> JD["Judge scores result"]
-    JD --> RD
+    JD --> READY["ready-specs Approved builds to Board"]
 
-    style IN fill:#1a1a2e,stroke:#4a9eff,stroke-width:1px
+    style TASK fill:#1a1a2e,stroke:#4a9eff,stroke-width:1px
     style POLICY fill:#0d1117,stroke:#f1fa8c,stroke-width:1px
     style QUEUE fill:#0d1117,stroke:#4a9eff,stroke-width:1px
     style REJECT fill:#1a0a0a,stroke:#666666,stroke-width:1px
     style ROUND fill:#150a1a,stroke:#bd93f9,stroke-width:2px
-    style DISPATCH fill:#0a150a,stroke:#50fa7b,stroke-width:1px
-    style ARCHIVE fill:#1a0a0a,stroke:#ff5555,stroke-width:1px
+    style W fill:#0a150a,stroke:#50fa7b,stroke-width:1px
+    style DISP fill:#0a150a,stroke:#50fa7b,stroke-width:1px
+    style ARCH fill:#1a0a0a,stroke:#ff5555,stroke-width:1px
     style ELO fill:#0d1117,stroke:#f1fa8c,stroke-width:1px
-    style READY fill:#0a150a,stroke:#50fa7b,stroke-width:1px
     style WORKERS fill:#0d1117,stroke:#4a9eff,stroke-width:1px
+    style READY fill:#0a150a,stroke:#50fa7b,stroke-width:1px
 ```

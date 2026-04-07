@@ -2,49 +2,37 @@
 %%{init: {"theme": "dark"}}%%
 flowchart TB
     subgraph CLIENTS["CLIENTS"]
-        DAEMON["Task Loop\n(Daemon)"]
-        WORKER["Lane Worker\n(background)"]
-        HUMAN["Human\n(Dashboard)"]
-        CRON["Cron\nScheduler"]
+        DAEMON["Task Loop Daemon"]
+        WORKER["Lane Worker"]
+        HUMAN["Human Dashboard"]
+        CRON["Cron Scheduler"]
     end
 
-    subgraph API["ORCHESTRATION API  /api"]
-        GET_TASKS["GET  /tasks\n?owner=X&status=Y"]
-        GET_TASK["GET  /tasks/{id}"]
-        GET_BLOCKERS["GET  /tasks/{id}/blockers"]
-        GET_DEPS["GET  /tasks/{id}/dependents"]
-        POST_STATUS["POST /tasks/{id}/status"]
-        GET_HANDOFFS["GET  /orchestration/handoffs"]
+    subgraph API["ORCHESTRATION API /api"]
+        GET1["GET /tasks owner=X status=Y"]
+        GET2["GET /tasks/{id}"]
+        GET3["GET /tasks/{id}/blockers"]
+        GET4["GET /tasks/{id}/dependents"]
+        POST["POST /tasks/{id}/status"]
+        GET5["GET /orchestration/handoffs"]
     end
 
     CLIENTS -->|"REST"| API
 
-    POST_STATUS --> SEQUENCE
-
-    subgraph SEQUENCE["POST /tasks/{id}/status  →  Atomicity"]
-        STEP1["1. Write orchestration log\n(immutable JSONL, BEFORE state change)"]
-        STEP2["2. Update task state\nin task store"]
-        STEP3["3. Check handoff protocol\nIf done → unblock dependents"]
-        STEP4["4. Send notification\n(best-effort, after log committed)"]
-        
-        STEP1 --> STEP2 --> STEP3 --> STEP4
+    subgraph SEQ["POST /tasks/{id}/status Atomicity"]
+        S1["1 Write orchestration log BEFORE state change"]
+        S2["2 Update task state in task store"]
+        S3["3 Check handoff protocol if done unblock dependents"]
+        S4["4 Send notification best-effort after log committed"]
+        S1 --> S2 --> S3 --> S4
     end
-
-    POST_STATUS --> SEQUENCE
-
-    subgraph RESPONSE["Response"]
-        OK["{task, from, to,\nhandoffs_triggered}"]
-        ERR["{error: not found}"]
-    end
-
-    SEQUENCE --> RESPONSE
+    POST --> SEQ
 
     style CLIENTS fill:#1a1a2e,stroke:#4a9eff,stroke-width:1px
     style API fill:#16213e,stroke:#4a9eff,stroke-width:2px
-    style SEQUENCE fill:#0a150a,stroke:#50fa7b,stroke-width:2px
-    style STEP1 fill:#0d1117,stroke:#50fa7b,stroke-width:1px
-    style STEP2 fill:#0d1117,stroke:#50fa7b,stroke-width:1px
-    style STEP3 fill:#0d1117,stroke:#50fa7b,stroke-width:1px
-    style STEP4 fill:#0d1117,stroke:#f1fa8c,stroke-width:1px
-    style RESPONSE fill:#12122a,stroke:#bd93f9,stroke-width:1px
+    style SEQ fill:#0a150a,stroke:#50fa7b,stroke-width:2px
+    style S1 fill:#0d1117,stroke:#50fa7b
+    style S2 fill:#0d1117,stroke:#50fa7b
+    style S3 fill:#0d1117,stroke:#50fa7b
+    style S4 fill:#0d1117,stroke:#f1fa8c
 ```
