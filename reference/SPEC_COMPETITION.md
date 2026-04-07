@@ -1,5 +1,25 @@
 # Spec Competition + ELO Rating System
 
+```mermaid
+flowchart TD
+    T["Task enters competition"] --> P["Policy gate\nfocus and block thresholds"]
+    P -->|"pass"| Q["task-queue\nwait for slot"]
+    P -->|"fail"| RJ["rejected"]
+    Q --> A["Agent A writes spec"]
+    Q --> B["Agent B writes spec"]
+    A --> V["Reviewer scores both\nquality x alignment x risk"]
+    B --> V
+    V --> W["Winner dispatched"]
+    V --> L["Loser archived"]
+    W -.->|"ELO up"| E1["Agent A rating increases"]
+    L -.->|"ELO down"| E2["Agent B rating decreases"]
+    E1 --> EL["spec-elo.json"]
+    E2 --> EL
+    W --> WK["Workers execute spec"]
+    WK --> CB["spec-callbacks"]
+    CB --> J["Judge evaluates result"]
+```
+
 When a task requires a decision — which approach to take, which model to use, which design to implement — the Spec Competition mode runs multiple agents in parallel and picks the winner by scoring.
 
 ---

@@ -1,5 +1,18 @@
 # Board Layer — Reference Implementation
 
+```mermaid
+flowchart TD
+    A["Inbound Signals\nTelegram / Email / Cron / Alert"] --> B["Human Triage\nchoose lane and priority"]
+    B --> C["fast-lane.md\nProduct / API"]
+    B --> D["medium-lane.md\nData / ETL"]
+    B --> E["slow-lane.md\nStrategy"]
+    B --> F["incident-board.md\ncross-lane"]
+    C --> C1["Telegram Topic 6"]
+    D --> D1["Telegram Topic 5"]
+    E --> E1["Telegram Topic 3"]
+    F --> F1["Telegram Topic 1"]
+```
+
 The Board is the human-facing layer. This document describes a production implementation using markdown files as the task store, with Telegram (or any messaging platform) as the notification surface.
 
 ---

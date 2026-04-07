@@ -1,5 +1,28 @@
 # Orchestration API — Reference Implementation
 
+```mermaid
+flowchart TD
+    C1["Daemon"] --> A
+    C2["Worker"] --> A
+    C3["Human"] --> A
+    C4["Cron"] --> A
+    subgraph A["ORCHESTRATION API /api"]
+        G1["GET /tasks"]
+        G2["GET /tasks/id/blockers"]
+        G3["GET /tasks/id/dependents"]
+        P["POST /tasks/id/status"]
+        G4["GET /handoffs"]
+    end
+    P --> S
+    subgraph S["POST atomicity sequence"]
+        X1["1. Write log FIRST"]
+        X2["2. Update task state"]
+        X3["3. Check handoff protocol"]
+        X4["4. Send notification"]
+        X1 --> X2 --> X3 --> X4
+    end
+```
+
 A lightweight REST API for task coordination. Every state mutation writes the orchestration log first, then updates task state, then fires notifications.
 
 Base URL: `http://localhost:3000/api`

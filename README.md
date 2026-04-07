@@ -42,25 +42,25 @@ tail -f orchestration.log.jsonl
 
 ## Architecture Diagrams
 
-The diagrams below show each layer of the pattern. PNG versions render everywhere. Mermaid source files are in `diagrams/*.mmd` for use in Obsidian or other Mermaid-compatible tools.
-
 ### Full Architecture
-![ARCHITECTURE](diagrams/ARCHITECTURE.png)
 
-### Layer 1 - Board
-![BOARD](diagrams/BOARD_LAYER.png)
+![Full Architecture](diagrams/ARCHITECTURE.png)
 
-### Layer 2 - Lane Workers
-![LANE](diagrams/LANE_WORKERS.png)
+---
 
-### Layer 2 - Orchestration API
-![API](diagrams/MC_API.png)
+### Layer Components
 
-### Layer 2 - Cron Scheduler
-![CRON](diagrams/CRON_ORCHESTRATOR.png)
+| Board Layer | Lane Workers |
+|:-----------:|:------------:|
+| ![Board Layer](diagrams/BOARD_LAYER.png) | ![Lane Workers](diagrams/LANE_WORKERS.png) |
 
-### Layer 2 - Spec Competition + ELO
-![SPEC](diagrams/SPEC_COMPETITION.png)
+| Orchestration API | Cron Scheduler |
+|:-----------------:|:--------------:|
+| ![Orchestration API](diagrams/MC_API.png) | ![Cron Orchestrator](diagrams/CRON_ORCHESTRATOR.png) |
+
+### Spec Competition + ELO
+
+![Spec Competition](diagrams/SPEC_COMPETITION.png)
 
 ---
 
@@ -70,8 +70,8 @@ The diagrams below show each layer of the pattern. PNG versions render everywher
 |------|-------------|
 | `docs/ARCHITECTURE.md` | Full architecture doc |
 | `docs/SLA.md` | Lane-aware SLA/escalation matrix |
-| `diagrams/*.mmd` | Mermaid source files |
-| `diagrams/*.png` | Pre-rendered diagrams |
+| `diagrams/*.png` | Pre-rendered diagrams (GitHub-compatible) |
+| `diagrams/*.mmd.source` | Mermaid source files (for Obsidian / local tools) |
 | `examples/minimal_daemon.py` | Working skeleton daemon |
 | `examples/task_schema.yaml` | Full task schema reference |
 | `examples/schema.json` | JSONL orchestration log schema |
