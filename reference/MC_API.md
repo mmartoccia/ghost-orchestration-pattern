@@ -3,21 +3,22 @@
 ```mermaid
 graph TD
     C1[Daemon]
-    C2[Worker]
+    C2[Lane worker]
     C3[Human dashboard]
     C4[Cron scheduler]
-    A0[Orchestration API, slash api]
-    A1[Get tasks, owner status priority filters]
-    A2[Get task by id]
-    A3[Get blockers]
-    A4[Get dependents]
+    A0[Orchestration API]
+    A1[Get tasks, owner status priority limit offset]
+    A2[Get task detail, blockers dependents handoff protocol]
+    A3[Get blockers, enriched status and ETA]
+    A4[Get dependents, critical path visibility]
     A5[Post task status]
-    A6[Get handoffs]
-    Q1[Write orchestration log first]
+    A6[Get handoffs, recent unblocks escalations]
+    Q1[Write orchestration log entry first]
     Q2[Update task state in store]
-    Q3[Check handoff protocol and unblock dependents]
-    Q4[Send notification after log commit]
-    R1[Response with task transition and handoffs]
+    Q3[Check handoff protocol]
+    Q4[Unblock downstream dependents to ready]
+    Q5[Send downstream notification, best effort]
+    R1[Response, from to handoffs triggered notifications sent]
 
     C1 --> A0
     C2 --> A0
@@ -29,7 +30,7 @@ graph TD
     A0 --> A4
     A0 --> A5
     A0 --> A6
-    A5 --> Q1 --> Q2 --> Q3 --> Q4 --> R1
+    A5 --> Q1 --> Q2 --> Q3 --> Q4 --> Q5 --> R1
 ```
 
 A lightweight REST API for task coordination. Every state mutation writes the orchestration log first, then updates task state, then fires notifications.

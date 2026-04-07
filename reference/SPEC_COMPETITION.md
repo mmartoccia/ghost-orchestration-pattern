@@ -4,33 +4,34 @@
 graph TD
     S1[Task enters competition mode]
     S2[Policy gate, focus keywords and blocked domains]
-    S3[Queue waiting for evaluation slot]
-    S4[Rejected below threshold]
+    S3[Rejected with reason logged]
+    S4[Queue waiting for evaluation slot]
     S5[Agent A writes spec]
     S6[Agent B writes spec]
-    S7[Reviewer scores correctness alignment risk]
+    S7[Reviewer scores correctness 40 alignment 35 risk inverted 25]
     S8[Winner dispatched]
     S9[Loser archived with feedback]
     S10[Update ELO ratings]
     S11[spec elo JSON]
-    S12[Winner spec sent to workers]
-    S13[Codex worker and Gemini worker]
-    S14[Spec callbacks]
-    S15[Judge evaluates result]
-    S16[Ready specs returned to board]
+    S12[ready specs, approved builds]
+    S13[spec results, failed or archived rounds]
+    S14[Workers execute winner]
+    S15[Spec callbacks]
+    S16[Judge evaluates result]
 
     S1 --> S2
     S2 --> S3
     S2 --> S4
-    S3 --> S5
-    S3 --> S6
+    S4 --> S5
+    S4 --> S6
     S5 --> S7
     S6 --> S7
     S7 --> S8
     S7 --> S9
     S8 --> S10 --> S11
     S9 --> S10
-    S8 --> S12 --> S13 --> S14 --> S15 --> S16
+    S9 --> S13
+    S8 --> S12 --> S14 --> S15 --> S16
 ```
 
 When a task requires a decision — which approach to take, which model to use, which design to implement — the Spec Competition mode runs multiple agents in parallel and picks the winner by scoring.

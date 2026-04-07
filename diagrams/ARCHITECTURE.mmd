@@ -1,60 +1,75 @@
 graph TD
     B0[Layer 1 Board]
     B1[Human intake and triage]
-    B2[Topic map, channel to file routing]
-    B3[Fast lane, product API user facing]
-    B4[Medium lane, data pipeline ETL]
-    B5[Slow lane, strategy research]
-    B6[Incident board, cross lane escalation]
-    B7[Org wide board, governance staffing]
+    B2[Dashboard, read only current state]
+    B3[Fast lane, product API live surfaces]
+    B4[Medium lane, internal data ETL ops]
+    B5[Slow lane, strategy research knowledge work]
+    B6[Incident board, multi lane issues]
+    B7[Org wide, governance staffing]
+    B8[Topic map, channel to file routing]
+    B9[Task schema, blockers dependents handoff SLA]
 
     O0[Layer 2 Orchestration]
     O1[Task loop daemon]
-    O2[Pick next task, WIP 1, highest priority]
-    O3[Execute task, run spawn dispatch]
-    O4[Mark done or blocked, write log before notify]
-    O5[Cron scheduler]
-    O6[Collect metrics and analyze outputs]
-    O7[Evaluate TASTE and generate proposals]
-    O8[Spec competition]
-    O9[Agent A and Agent B write specs]
-    O10[Reviewer scores both and updates ELO]
-    O11[Lane workers]
-    O12[Fast worker, 30 to 60 seconds]
-    O13[Medium worker, 2 to 5 minutes]
-    O14[Slow worker, 5 to 15 minutes]
+    O2[Pick next, stale restart then in progress then backlog]
+    O3[WIP 1, skip human owned and blocked tasks]
+    O4[Execute task, run spawn dispatch]
+    O5[Retry with backoff, 30 then 60 then 120]
+    O6[Mark done or blocked]
+    O7[Write log before notification]
+    O8[Heartbeat and clean signal handling]
+    O9[Cron scheduler]
+    O10[Collect metrics and analyze outputs]
+    O11[Evaluate TASTE, enforce SLA, generate proposals]
+    O12[Optional spec competition]
+    O13[Agent A spec, Agent B spec, reviewer, ELO]
+    O14[Lane workers]
+    O15[Fast worker, 30 to 60 seconds]
+    O16[Medium worker, 2 to 5 minutes]
+    O17[Slow worker, 5 to 15 minutes]
 
     D0[Layer 3 Data]
-    D1[Canonical source, append only for consumers]
-    D2[ETL and sync, schema validation]
-    D3[Derived store, PostgreSQL or SQLite]
+    D1[Canonical source, read only for consumers]
+    D2[Schema version compatibility check]
+    D3[ETL and sync, idempotent enrichment]
+    D4[Derived store, PostgreSQL SQLite]
 
-    L0[orchestration log JSONL, immutable append only]
     A0[Orchestration API]
-    A1[Get tasks]
+    A1[Get tasks and task by id]
     A2[Get blockers and dependents]
-    A3[Post task status, atomic log state handoff notify]
-    A4[Get handoffs]
+    A3[Post status, log then state then handoff then notify]
+    A4[Get orchestration handoffs]
+    L0[Orchestration log JSONL, immutable append only]
 
     B0 --> B1
-    B1 --> B2
+    B0 --> B2
     B1 --> B3
     B1 --> B4
     B1 --> B5
     B1 --> B6
     B1 --> B7
+    B1 --> B8
+    B3 --> B9
+    B4 --> B9
+    B5 --> B9
 
     B0 --> O0
     O0 --> O1 --> O2 --> O3 --> O4
-    O0 --> O5 --> O6 --> O7
-    O0 --> O8 --> O9 --> O10
-    O0 --> O11
-    O11 --> O12
-    O11 --> O13
-    O11 --> O14
+    O4 --> O5
+    O4 --> O6 --> O7
+    O1 --> O8
+    O0 --> O9 --> O10 --> O11
+    O0 --> O12 --> O13
+    O0 --> O14
+    O14 --> O15
+    O14 --> O16
+    O14 --> O17
 
-    O4 --> L0
     O7 --> L0
+    O11 --> L0
+    L0 --> B2
+    L0 --> B6
 
     O0 --> A0
     A0 --> A1
@@ -63,5 +78,6 @@ graph TD
     A0 --> A4
 
     O0 --> D0
-    D0 --> D1 --> D2 --> D3
-    L0 --> B0
+    D0 --> D1 --> D2 --> D3 --> D4
+    D4 --> O1
+    D4 --> O9

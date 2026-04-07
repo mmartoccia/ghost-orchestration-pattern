@@ -3,34 +3,35 @@
 ```mermaid
 graph TD
     C1[Every 15 minutes]
-    C2[Collect metrics, queue depth error rate throughput cost stall rate]
-    C3[Analyze recent outputs, quality signal and cost]
+    C2[Collect queue depth error rate throughput duration cost stall ratio]
+    C3[Analyze recent outputs, quality and cost signals]
     C4[Evaluate TASTE rubric]
-    T1[Throughput]
-    T2[Accuracy]
-    T3[Stability]
-    T4[Cost]
-    T5[Evolution]
-    C5[Generate proposals for deviations over threshold]
-    P1[Throughput deviation to fast lane]
-    P2[Accuracy deviation to quality work]
-    P3[Stability deviation to incident board]
-    P4[Cost deviation to org wide]
-    P5[Evolution deviation to strategy]
-    C6[Write JSONL log]
-    C7[Push urgent proposals to board]
+    T1[Throughput, work moving]
+    T2[Accuracy, judged pass rate]
+    T3[Stability, error rate]
+    T4[Cost, spend per task]
+    T5[Evolution, trend versus baseline]
+    C5[Check lane aware SLA, stale in progress and no motion]
+    C6[Generate proposals for deviations over threshold]
+    P1[Throughput issue to fast lane]
+    P2[Accuracy issue to quality work]
+    P3[Stability issue to incident board]
+    P4[Cost issue to org wide]
+    P5[Evolution issue to strategy]
+    C7[Write cycle to orchestration log]
+    C8[Push urgent proposals or escalations to board]
 
-    C1 --> C2 --> C3 --> C4 --> C5 --> C6 --> C7
+    C1 --> C2 --> C3 --> C4 --> C5 --> C6 --> C7 --> C8
     C4 --> T1
     C4 --> T2
     C4 --> T3
     C4 --> T4
     C4 --> T5
-    C5 --> P1
-    C5 --> P2
-    C5 --> P3
-    C5 --> P4
-    C5 --> P5
+    C6 --> P1
+    C6 --> P2
+    C6 --> P3
+    C6 --> P4
+    C6 --> P5
 ```
 
 The Cron Orchestrator is the observability and improvement layer. It runs on a fixed schedule (typically every 15 minutes) and does not execute tasks — it observes, evaluates, and proposes.
