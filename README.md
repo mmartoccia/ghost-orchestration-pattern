@@ -10,7 +10,7 @@ A production-proven architecture for running multi-agent task execution with hum
 
 Most automation fails at the human/machine boundary:
 - Machines execute but humans don't know what's happening
-- Humans介入 too often, creating bottlenecks
+- Humans intervene too often, creating bottlenecks
 - No clear contract for when machines can self-direct vs. when to escalate
 - Tool sprawl: cron jobs, scripts, agents all running independently with no shared state
 
@@ -31,61 +31,36 @@ Layer 3: DATA           Canonical sources, transforms, derived stores
 ## Quick Start
 
 ```bash
-# 1. Define your lanes in board.yaml
-lanes:
-  - name: product
-    priority: fast
-    escalation_minutes: 60
-  - name: data
-    priority: medium
-    escalation_minutes: 240
-
-# 2. Start the daemon
+# 1. Start the daemon
 python3 examples/minimal_daemon.py
 
-# 3. Watch the log
+# 2. Watch the log
 tail -f orchestration.log.jsonl
 ```
 
 ---
 
-## Architecture Overview
+## Architecture Diagrams
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│  LAYER 1: BOARD                                            │
-│  Topic lanes → Incident board → Human triage + escalation    │
-└──────────────────────┬──────────────────────────────────────┘
-                       │ task dispatch
-┌──────────────────────▼──────────────────────────────────────┐
-│  LAYER 2: ORCHESTRATION                                    │
-│  Task Loop (daemon)  ─  Cron Scheduler  ─  Lane Workers     │
-│  Optional: Spec Competition (multi-agent decision mode)     │
-└──────────────────────┬──────────────────────────────────────┘
-                       │ read / write
-┌──────────────────────▼──────────────────────────────────────┐
-│  LAYER 3: DATA                                             │
-│  Canonical source → ETL/sync → Derived store                │
-└─────────────────────────────────────────────────────────────┘
-```
+The diagrams below show each layer of the pattern. PNG versions render everywhere. Mermaid source files are in `diagrams/*.mmd` for use in Obsidian or other Mermaid-compatible tools.
 
-Full documentation: see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+### Full Architecture
+![ARCHITECTURE](diagrams/ARCHITECTURE.png)
 
----
+### Layer 1 - Board
+![BOARD](diagrams/BOARD_LAYER.png)
 
-## Diagrams
+### Layer 2 - Lane Workers
+![LANE](diagrams/LANE_WORKERS.png)
 
-| Diagram | What it covers |
-|---------|---------------|
-| `diagrams/ARCHITECTURE.mmd` | Full 3-layer system with all sub-components + clickable links to reference docs |
-| `diagrams/BOARD_LAYER.mmd` | Board layer: intake, routing, topic lanes, incident board, notification routing |
-| `diagrams/LANE_WORKERS.mmd` | Lane worker flow: poll → execute → write → heartbeat → supervisor restart |
-| `diagrams/MC_API.mmd` | Orchestration API: 5 endpoints + atomicity contract (log → state → handoff → notify) |
-| `diagrams/CRON_ORCHESTRATOR.mmd` | Cron scheduler: TASTE rubric evaluation, proposal generation, alert routing |
-| `diagrams/SPEC_COMPETITION.mmd` | Spec competition + ELO: policy gate, parallel agents, reviewer scoring, ELO update |
+### Layer 2 - Orchestration API
+![API](diagrams/MC_API.png)
 
-Open any `.mmd` file in Obsidian with the Mermaid plugin (or GitHub with Mermaid preview) to render.
+### Layer 2 - Cron Scheduler
+![CRON](diagrams/CRON_ORCHESTRATOR.png)
 
+### Layer 2 - Spec Competition + ELO
+![SPEC](diagrams/SPEC_COMPETITION.png)
 
 ---
 
@@ -93,12 +68,14 @@ Open any `.mmd` file in Obsidian with the Mermaid plugin (or GitHub with Mermaid
 
 | Path | Description |
 |------|-------------|
-| `docs/ARCHITECTURE.md` | Full architecture doc (pattern only, no implementation) |
+| `docs/ARCHITECTURE.md` | Full architecture doc |
 | `docs/SLA.md` | Lane-aware SLA/escalation matrix |
-| `diagrams/` | Mermaid diagrams for each layer |
-| `examples/minimal_daemon.py` | Minimal working reference implementation |
-| `examples/task_schema.yaml` | YAML task schema with all recommended fields |
+| `diagrams/*.mmd` | Mermaid source files |
+| `diagrams/*.png` | Pre-rendered diagrams |
+| `examples/minimal_daemon.py` | Working skeleton daemon |
+| `examples/task_schema.yaml` | Full task schema reference |
 | `examples/schema.json` | JSONL orchestration log schema |
+| `reference/` | Production-tested implementation patterns |
 
 ---
 
@@ -119,20 +96,22 @@ Open any `.mmd` file in Obsidian with the Mermaid plugin (or GitHub with Mermaid
 
 ## Reference Implementation Layer
 
-The `reference/` directory contains production-tested implementation patterns extracted from a live system:
+The `reference/` directory contains production-tested implementation patterns:
 
 | File | Description |
 |------|-------------|
-| `reference/BOARD_LAYER.md` | Coordination boards, topic lanes, incident routing, task block schema |
-| `reference/LANE_WORKERS.md` | Per-lane background processor pattern, startup supervisor, health checks |
-| `reference/MC_API.md` | 5-endpoint REST API for task coordination, atomicity contract, Flask implementation |
-| `reference/CRON_ORCHESTRATOR.md` | 15-min scheduler, TASTE rubric, metrics to collect, alert routing |
-| `reference/SPEC_COMPETITION.md` | Multi-agent decision mode, ELO rating system, reviewer scoring rubric |
+| `reference/BOARD_LAYER.md` | Coordination boards, topic lanes, incident routing |
+| `reference/LANE_WORKERS.md` | Per-lane background processor, startup supervisor, health checks |
+| `reference/MC_API.md` | 5-endpoint REST API, atomicity contract, Flask implementation |
+| `reference/CRON_ORCHESTRATOR.md` | 15-min scheduler, TASTE rubric, alert routing |
+| `reference/SPEC_COMPETITION.md` | Multi-agent ELO rating system, reviewer rubric |
 
-These are **reference patterns**, not drop-in implementations. They show how each layer works in production. Adapt to your stack.
+These are **reference patterns**, not drop-in implementations. Adapt to your stack.
+
+---
 
 ## Status
 
-Pattern is production-proven. Reference implementations are skeletons — adapt to your stack.
+Pattern is production-proven. Reference implementations are skeletons.
 
 MIT License.
