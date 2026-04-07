@@ -1,6 +1,6 @@
 ```mermaid
 flowchart TB
-    subgraph BOARD["LAYER 1 — BOARD"]
+    subgraph BOARD["LAYER 1 - BOARD"]
         direction TB
         L1["Human work intake + Triage"]
         LANES["fast-lane  medium-lane  slow-lane"]
@@ -10,7 +10,7 @@ flowchart TB
         LANES --> INC
     end
     BOARD --> ORCH
-    subgraph ORCH["LAYER 2 — ORCHESTRATION"]
+    subgraph ORCH["LAYER 2 - ORCHESTRATION"]
         direction LR
         LOOP["Task Loop (Daemon) WIP=1"]
         SCHED["Cron Scheduler 15min TASTE rubric"]
@@ -18,7 +18,7 @@ flowchart TB
         WORKERS["Lane Workers fast medium slow"]
     end
     ORCH --> DATA
-    subgraph DATA["LAYER 3 — DATA"]
+    subgraph DATA["LAYER 3 - DATA"]
         PROD["Canonical Source append-only"]
         SYNC["ETL Sync schema validation"]
         DER["Derived Store PostgreSQL SQLite"]
