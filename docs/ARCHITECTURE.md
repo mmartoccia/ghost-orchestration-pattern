@@ -291,3 +291,16 @@ All state mutations write the orchestration log before returning. Notifications 
 │   └── schema.json              # JSONL orchestration log schema
 └── src/                         # (optional) reference implementations
 ```
+
+## Diagrams
+
+Each layer has a corresponding Mermaid diagram in `diagrams/`. Open them in any Mermaid-compatible viewer (Obsidian with Mermaid plugin, GitHub, or [mermaid.live](https://mermaid.live)).
+
+| Diagram | What it covers |
+|---------|---------------|
+| `diagrams/ARCHITECTURE.mmd` | Full 3-layer system with clickable links to reference docs |
+| `diagrams/BOARD_LAYER.mmd` | Board layer: intake, routing, topic lanes, incident board, notifications |
+| `diagrams/LANE_WORKERS.mmd` | Lane worker flow: poll → execute → write → heartbeat → supervisor |
+| `diagrams/MC_API.mmd` | API: 5 endpoints + atomicity contract (log → state → handoff → notify) |
+| `diagrams/CRON_ORCHESTRATOR.mmd` | Cron scheduler: TASTE rubric, proposal generation, alert routing |
+| `diagrams/SPEC_COMPETITION.mmd` | Spec competition + ELO: policy gate, parallel agents, reviewer scoring |

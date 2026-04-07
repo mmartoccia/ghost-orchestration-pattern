@@ -1,0 +1,51 @@
+```mermaid
+%%{init: {"theme": "dark"}}%%
+flowchart TB
+    subgraph SCHEDULE["SCHEDULE"]
+        EVERY15["Every 15 minutes\nsetInterval(runCycle, 15*60*1000)"]
+    end
+
+    subgraph CYCLE["RUN CYCLE"]
+        M1["1. Collect Metrics\nQueue depth · Error rate\nThroughput · Cost · Stall rate"]
+        
+        M2["2. Analyze Outputs\nRecent task results\nQuality signal\nCost categorization"]
+        
+        M3["3. Evaluate\nvs TASTE Rubric"]
+        
+        subgraph TASTE["TASTE RUBRIC"]
+            T["Throughput\nTasks/hour"]
+            A["Accuracy\nPass rate"]
+            S["Stability\nError rate"]
+            C["Cost\nSpend/budget"]
+            E["Evolution\nTrend vs baseline"]
+            T & A & S & C & E
+        end
+        
+        M3 --> TASTE
+        
+        M4["4. Generate Proposals\nDeviations > threshold\nbecome proposals"]
+        
+        M5["5. Write JSONL Log\nAudit trail\nAlways first"]
+        
+        M6["6. Push to Board\n(optional)\nHigh urgency → escalate"]
+    end
+
+    EVERY15 --> CYCLE
+    M1 --> M2 --> M3 --> M4 --> M5 --> M6
+
+    M4 -->|"if deviation > threshold"| PROPOSAL
+    subgraph PROPOSAL["PROPOSAL"]
+        P1["Throughput deviation → Fast-lane"]
+        P2["Accuracy deviation → Quality lane"]
+        P3["Stability deviation → Incident board"]
+        P4["Cost deviation → Org-wide"]
+        P5["Evolution deviation → Strategy"]
+    end
+
+    M6 --> PROPOSAL
+
+    style EVERY15 fill:#1a1a2e,stroke:#4a9eff,stroke-width:1px
+    style CYCLE fill:#120f1a,stroke:#bd93f9,stroke-width:2px
+    style TASTE fill:#0d1117,stroke:#ff5555,stroke-width:1px
+    style PROPOSAL fill:#1a0a0a,stroke:#ff5555,stroke-width:1px
+```

@@ -1,15 +1,16 @@
+```mermaid
 %%{init: {"theme": "dark"}}%%
 flowchart TB
     subgraph BOARD["LAYER 1 — BOARD"]
         direction TB
         L1["Human work intake\n+ Triage"]
-        LANES["Lane A  ·  Lane B  ·  Lane C  ·  Lane N..."]
-        DASH["Dashboard\n(Read-only state view)"]
-        INC["Incident Board\n(Cross-Lane Escalation)"]
+        LANES["fast-lane · medium-lane · slow-lane\n(coordination/*.md files)"]
+        INC["incident-board.md\n(Cross-Lane Escalation)"]
+        TOPICMAP["topic-map.yaml\n(channel → file routing)"]
         
         L1 --> LANES
-        LANES --> DASH
         LANES --> INC
+        L1 --> TOPICMAP
     end
 
     BOARD -->|"task dispatch"| ORCH
@@ -20,40 +21,40 @@ flowchart TB
         subgraph LOOP["Task Loop (Daemon)"]
             PN["pick_next()\nWIP=1 · highest-prio"]
             EX["execute_task()\nrun · spawn · dispatch"]
-            LOG["mark done/blocked\nwrite orchestration log"]
+            LOG["mark done/blocked\nwrite log (BEFORE notify)"]
             PN --> EX --> LOG --> PN
             LOG -.->|"backlog empty"| SLP["sleep 30s"]
             SLP --> PN
         end
         
-        subgraph SCHED["Cron Scheduler"]
-            M["Collect metrics"]
-            A["Analyze outputs\nquality · cost"]
-            E["Evaluate vs rubric"]
-            P["Propose improvements"]
+        subgraph SCHED["Cron Scheduler  (see: reference/CRON_ORCHESTRATOR.md)"]
+            M["[1] Metrics"]
+            A["[2] Analyze\nquality · cost"]
+            E["[3] TASTE rubric\nevaluate"]
+            P["[4] Proposals\ndeviations"]
             M --> A --> E --> P
         end
         
-        subgraph SPEC["Spec Competition\n(optional)"]
-            QA["Agent A\nwrites spec"]
-            QB["Agent B\nwrites spec"]
-            RV["Reviewer scores"]
-            QA & QB --> RV
+        subgraph SPEC["Spec Competition  (see: reference/SPEC_COMPETITION.md)"]
+            SA["Agent A\nwrites spec"]
+            SB["Agent B\nwrites spec"]
+            RV["Reviewer\nscores both"]
+            SA & SB --> RV
             RV --> W["Winner\n→ dispatch"]
             RV -.-> ELO["ELO ratings"]
         end
         
-        subgraph WORKERS["Lane Workers"]
-            WA["Worker A\n→ Lane A"]
-            WB["Worker B\n→ Lane B"]
-            WN["Worker N\n→ Lane N"]
+        subgraph WORKERS["Lane Workers  (see: reference/LANE_WORKERS.md)"]
+            WA["fast-lane worker\nPoll: 30-60s"]
+            WM["medium-lane worker\nPoll: 2-5min"]
+            WS["slow-lane worker\nPoll: 5-15min"]
         end
     end
 
     ORCH -->|"read / write"| DATA
 
     subgraph DATA["LAYER 3 — DATA"]
-        PROD["Canonical Source\n(append-only, read-only)"]
+        PROD["Canonical Source\n(VPS DB / API / SaaS)\nappend-only, read-only for consumers"]
         SYNC["ETL / Sync\nschema validation\nscheduled or event-driven"]
         DER["Derived Store\n(PostgreSQL / SQLite)\nmaterializations + business logic"]
         
@@ -62,15 +63,39 @@ flowchart TB
 
     LOOP -.->|"write log"| OLOG
     SCHED -.->|"write log"| OLOG
-    OLOG["orchestration.log.jsonl\n(immutable append-only)"]
 
-    style BOARD fill:#1a1a2e,stroke:#4a9eff,stroke-width:2px,color:#e0e0e0
-    style ORCH fill:#16213e,stroke:#4a9eff,stroke-width:2px,color:#e0e0e0
-    style DATA fill:#0f3460,stroke:#4a9eff,stroke-width:2px,color:#e0e0e0
-    style LOOP fill:#0a1a0a,stroke:#50fa7b,stroke-width:1px,color:#e0e0e0
-    style SCHED fill:#120f1a,stroke:#bd93f9,stroke-width:1px,color:#e0e0e0
-    style SPEC fill:#1a0a0a,stroke:#ff5555,stroke-width:1px,color:#e0e0e0
-    style WORKERS fill:#14140a,stroke:#f1fa8c,stroke-width:1px,color:#e0e0e0
-    style PROD fill:#0a1215,stroke:#8be9fd,stroke-width:1px,color:#e0e0e0
-    style DER fill:#0a1215,stroke:#50fa7b,stroke-width:1px,color:#e0e0e0
-    style OLOG fill:#0d0d20,stroke:#4a9eff,stroke-width:1px,color:#4a9eff
+    subgraph OLOG["ORCHESTRATION LOG"]
+        JL["orchestration.log.jsonl\n(immutable append-only)\nwritten BEFORE notifications"]
+    end
+
+    JL -.->|"feeds"| BOARD
+
+    subgraph API["API  (see: reference/MC_API.md)"]
+        GET["GET  /tasks\nGET  /tasks/{id}/blockers\nGET  /tasks/{id}/dependents"]
+        POST["POST /tasks/{id}/status\n(atomic: log → state → handoff → notify)"]
+        GET_HANDOFFS["GET  /orchestration/handoffs"]
+    end
+
+    DAEMON["Daemon\n+ Workers\n+ Scheduler"] -->|"REST"| API
+    HUMAN["Humans\n(Dashboard)"] -->|"REST"| API
+
+    style BOARD fill:#16213e,stroke:#4a9eff,stroke-width:2px
+    style ORCH fill:#1a1a2e,stroke:#4a9eff,stroke-width:2px
+    style DATA fill:#0f3460,stroke:#4a9eff,stroke-width:2px
+    style LOOP fill:#0a150a,stroke:#50fa7b,stroke-width:1px
+    style SCHED fill:#120f1a,stroke:#bd93f9,stroke-width:1px
+    style SPEC fill:#150a1a,stroke:#bd93f9,stroke-width:1px
+    style WORKERS fill:#0d1117,stroke:#f1fa8c,stroke-width:1px
+    style PROD fill:#0a1215,stroke:#8be9fd,stroke-width:1px
+    style DER fill:#0a150a,stroke:#50fa7b,stroke-width:1px
+    style OLOG fill:#0d0d20,stroke:#4a9eff,stroke-width:1px
+    style API fill:#0d1117,stroke:#4a9eff,stroke-width:1px
+    style JL fill:#0d1117,stroke:#4a9eff,stroke-width:1px
+
+    click LOOP "reference/LANE_WORKERS.md" "Lane Workers pattern"
+    click SCHED "reference/CRON_ORCHESTRATOR.md" "Cron Scheduler pattern"
+    click SPEC "reference/SPEC_COMPETITION.md" "Spec Competition + ELO pattern"
+    click WORKERS "reference/LANE_WORKERS.md" "Lane Workers pattern"
+    click BOARD "reference/BOARD_LAYER.md" "Board Layer pattern"
+    click API "reference/MC_API.md" "Orchestration API reference"
+```

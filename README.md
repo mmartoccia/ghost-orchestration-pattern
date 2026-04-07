@@ -73,6 +73,22 @@ Full documentation: see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
 ---
 
+## Diagrams
+
+| Diagram | What it covers |
+|---------|---------------|
+| `diagrams/ARCHITECTURE.mmd` | Full 3-layer system with all sub-components + clickable links to reference docs |
+| `diagrams/BOARD_LAYER.mmd` | Board layer: intake, routing, topic lanes, incident board, notification routing |
+| `diagrams/LANE_WORKERS.mmd` | Lane worker flow: poll → execute → write → heartbeat → supervisor restart |
+| `diagrams/MC_API.mmd` | Orchestration API: 5 endpoints + atomicity contract (log → state → handoff → notify) |
+| `diagrams/CRON_ORCHESTRATOR.mmd` | Cron scheduler: TASTE rubric evaluation, proposal generation, alert routing |
+| `diagrams/SPEC_COMPETITION.mmd` | Spec competition + ELO: policy gate, parallel agents, reviewer scoring, ELO update |
+
+Open any `.mmd` file in Obsidian with the Mermaid plugin (or GitHub with Mermaid preview) to render.
+
+
+---
+
 ## What's Included
 
 | Path | Description |
