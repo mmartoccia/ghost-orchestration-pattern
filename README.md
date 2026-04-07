@@ -44,23 +44,138 @@ tail -f orchestration.log.jsonl
 
 ### Full Architecture
 
-![Full Architecture](diagrams/ARCHITECTURE.png)
+```mermaid
+flowchart TB
+    subgraph B["LAYER 1 - BOARD"]
+        L1["Human work intake + Triage"]
+        LANES["fast-lane / medium-lane / slow-lane"]
+        INC["incident-board.md (cross-lane)"]
+        L1 --> LANES
+        LANES --> INC
+    end
+    B --> O
+    subgraph O["LAYER 2 - ORCHESTRATION"]
+        L["Task Loop Daemon (WIP=1)"]
+        C["Cron Scheduler (15min TASTE)"]
+        S["Spec Competition (ELO)"]
+        W["Lane Workers"]
+    end
+    O --> D
+    subgraph D["LAYER 3 - DATA"]
+        P["Canonical Source (append-only)"]
+        Y["ETL Sync (schema validation)"]
+        R["Derived Store (PostgreSQL / SQLite)"]
+        P --> Y --> R
+    end
+    L -.-> LOG["orchestration.log.jsonl"]
+    C -.-> LOG
+```
 
 ---
 
-### Layer Components
+### Board Layer
 
-| Board Layer | Lane Workers |
-|:-----------:|:------------:|
-| ![Board Layer](diagrams/BOARD_LAYER.png) | ![Lane Workers](diagrams/LANE_WORKERS.png) |
+```mermaid
+flowchart TD
+    A["Inbound Signals\nTelegram / Email / Cron / Alert"] --> B["Human Triage\nchoose lane and priority"]
+    B --> C["fast-lane.md\nProduct / API"]
+    B --> D["medium-lane.md\nData / ETL"]
+    B --> E["slow-lane.md\nStrategy"]
+    B --> F["incident-board.md\ncross-lane"]
+    C --> C1["Telegram Topic 6"]
+    D --> D1["Telegram Topic 5"]
+    E --> E1["Telegram Topic 3"]
+    F --> F1["Telegram Topic 1"]
+```
 
-| Orchestration API | Cron Scheduler |
-|:-----------------:|:--------------:|
-| ![Orchestration API](diagrams/MC_API.png) | ![Cron Orchestrator](diagrams/CRON_ORCHESTRATOR.png) |
+### Lane Workers
+
+```mermaid
+flowchart TD
+    L["lane.md\ntask blocks"] <--> P
+    P["poll_lane()\ncheck for ready tasks"] --> R["Sort by priority\npick next task"]
+    R --> E["execute(task)\ndo the work"]
+    E --> W["write_result()\nupdate Board"]
+    W --> P
+    W --> T1["Fast Worker\n30-60s cycle"]
+    W --> T2["Medium Worker\n2-5 min cycle"]
+    W --> T3["Slow Worker\n5-15 min cycle"]
+    W -.-> H["worker.json\nHeartbeat"]
+    H -.-> S["Supervisor\nauto-restart"]
+```
+
+### Orchestration API
+
+```mermaid
+flowchart TD
+    C1["Daemon"] --> A
+    C2["Worker"] --> A
+    C3["Human"] --> A
+    C4["Cron"] --> A
+    subgraph A["ORCHESTRATION API /api"]
+        G1["GET /tasks"]
+        G2["GET /tasks/id/blockers"]
+        G3["GET /tasks/id/dependents"]
+        P["POST /tasks/id/status"]
+        G4["GET /handoffs"]
+    end
+    P --> S
+    subgraph S["POST atomicity sequence"]
+        X1["1. Write log FIRST"]
+        X2["2. Update task state"]
+        X3["3. Check handoff protocol"]
+        X4["4. Send notification"]
+        X1 --> X2 --> X3 --> X4
+    end
+```
+
+### Cron Scheduler
+
+```mermaid
+flowchart TD
+    E["Every 15 minutes"] --> M1
+    subgraph C["RUN CYCLE"]
+        M1["1. Collect Metrics"] --> M2["2. Analyze Outputs"]
+        M2 --> M3["3. Evaluate TASTE Rubric"]
+        M3 --> M4["4. Generate Proposals"]
+        M4 --> M5["5. Write JSONL Log"]
+        M5 --> M6["6. Push to Board"]
+    end
+    M3 -.-> T
+    subgraph T["TASTE RUBRIC"]
+        T1["Throughput"]
+        T2["Accuracy"]
+        T3["Stability"]
+        T4["Cost"]
+        T5["Evolution"]
+    end
+    M4 --> P1["Throughput - Fast-lane"]
+    M4 --> P2["Accuracy - Quality"]
+    M4 --> P3["Stability - Incident"]
+    M4 --> P4["Cost - Org-wide"]
+```
 
 ### Spec Competition + ELO
 
-![Spec Competition](diagrams/SPEC_COMPETITION.png)
+```mermaid
+flowchart TD
+    T["Task enters competition"] --> P["Policy gate\nfocus and block thresholds"]
+    P -->|"pass"| Q["task-queue\nwait for slot"]
+    P -->|"fail"| RJ["rejected"]
+    Q --> A["Agent A writes spec"]
+    Q --> B["Agent B writes spec"]
+    A --> V["Reviewer scores both\nquality x alignment x risk"]
+    B --> V
+    V --> W["Winner dispatched"]
+    V --> L["Loser archived"]
+    W -.->|"ELO up"| E1["Agent A rating increases"]
+    L -.->|"ELO down"| E2["Agent B rating decreases"]
+    E1 --> EL["spec-elo.json"]
+    E2 --> EL
+    W --> WK["Workers execute spec"]
+    WK --> CB["spec-callbacks"]
+    CB --> J["Judge evaluates result"]
+```
 
 ---
 
@@ -70,8 +185,8 @@ tail -f orchestration.log.jsonl
 |------|-------------|
 | `docs/ARCHITECTURE.md` | Full architecture doc |
 | `docs/SLA.md` | Lane-aware SLA/escalation matrix |
-| `diagrams/*.png` | Pre-rendered diagrams (GitHub-compatible) |
 | `diagrams/*.mmd.source` | Mermaid source files (for Obsidian / local tools) |
+| `diagrams/*.png` | Pre-rendered fallback PNGs |
 | `examples/minimal_daemon.py` | Working skeleton daemon |
 | `examples/task_schema.yaml` | Full task schema reference |
 | `examples/schema.json` | JSONL orchestration log schema |
