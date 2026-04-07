@@ -1,38 +1,26 @@
 ```mermaid
 flowchart TB
-    subgraph BOARD["LAYER 1 - BOARD"]
-        direction TB
+    subgraph B["LAYER 1 - BOARD"]
         L1["Human work intake + Triage"]
-        LANES["fast-lane  medium-lane  slow-lane"]
-        INC["incident-board.md (Cross-Lane)"]
-        TOPICMAP["topic-map.yaml routing"]
+        LANES["fast-lane medium-lane slow-lane"]
+        INC["incident-board.md cross-lane"]
         L1 --> LANES
         LANES --> INC
     end
-    BOARD --> ORCH
-    subgraph ORCH["LAYER 2 - ORCHESTRATION"]
-        direction LR
-        LOOP["Task Loop (Daemon) WIP=1"]
-        SCHED["Cron Scheduler 15min TASTE rubric"]
-        SPEC["Spec Competition ELO ratings"]
-        WORKERS["Lane Workers fast medium slow"]
+    B --> O
+    subgraph O["LAYER 2 - ORCHESTRATION"]
+        L["Task Loop Daemon WIP=1"]
+        C["Cron Scheduler 15min TASTE"]
+        S["Spec Competition ELO"]
+        W["Lane Workers"]
     end
-    ORCH --> DATA
-    subgraph DATA["LAYER 3 - DATA"]
-        PROD["Canonical Source append-only"]
-        SYNC["ETL Sync schema validation"]
-        DER["Derived Store PostgreSQL SQLite"]
-        PROD --> SYNC --> DER
+    O --> D
+    subgraph D["LAYER 3 - DATA"]
+        P["Canonical Source append-only"]
+        Y["ETL Sync schema validation"]
+        R["Derived Store PostgreSQL SQLite"]
+        P --> Y --> R
     end
-    LOOP -.-> LOG["orchestration.log.jsonl"]
-    SCHED -.-> LOG
-    style BOARD fill:#16213e,stroke:#4a9eff,stroke-width:2px
-    style ORCH fill:#1a1a2e,stroke:#4a9eff,stroke-width:2px
-    style DATA fill:#0f3460,stroke:#4a9eff,stroke-width:2px
-    style LOOP fill:#0a150a,stroke:#50fa7b,stroke-width:1px
-    style SCHED fill:#120f1a,stroke:#bd93f9,stroke-width:1px
-    style SPEC fill:#150a1a,stroke:#bd93f9,stroke-width:1px
-    style WORKERS fill:#0d1117,stroke:#f1fa8c,stroke-width:1px
-    style PROD fill:#0a1215,stroke:#8be9fd,stroke-width:1px
-    style DER fill:#0a150a,stroke:#50fa7b,stroke-width:1px
+    L -.-> LOG["orchestration.log.jsonl"]
+    C -.-> LOG
 ```
