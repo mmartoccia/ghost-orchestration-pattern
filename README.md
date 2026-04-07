@@ -10,7 +10,7 @@ A production-proven architecture for running multi-agent task execution with hum
 
 Most automation fails at the human/machine boundary:
 - Machines execute but humans don't know what's happening
-- Humans intervene too often, creating bottlenecks
+- Humans get involved too often, creating bottlenecks
 - No clear contract for when machines can self-direct vs. when to escalate
 - Tool sprawl: cron jobs, scripts, agents all running independently with no shared state
 
